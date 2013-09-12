@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-Name: Java 3D Viewer Integration
+Bundle-SymbolicName: org.knime.knip.ij3dviewer.base;singleton:=true
+Bundle-ManifestVersion: 2
+Bundle-Version: 0.7.1.qualifier
+Fragment-Host: org.knime.knip.imagej2.core;bundle-version="0.7.1.qualifier"
+Bundle-Vendor: --
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: knip_viewer3d.jar,
+ lib/ImageJ_3D_Viewer.jar,
+ lib/j3dcore.jar,
+ lib/j3dutils.jar,
+ lib/vecmath.jar
+

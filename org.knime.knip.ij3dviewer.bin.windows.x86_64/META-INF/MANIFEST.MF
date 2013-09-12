@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fiji 3D Viewer Libraries for Windows x86_64
+Bundle-SymbolicName: org.knime.knip.ij3dviewer.bin.windows.x86_64
+Bundle-Version: 0.7.1.qualifier
+Bundle-Vendor: University of Konstanz
+Fragment-Host: org.knime.knip.imagej2.core;bundle-version="0.7.1.qualifier"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
+Bundle-NativeCode: 
+ lib/windows/x86_64/j3dcore-ogl.dll;
+ osname=win32;
+ osname=Windows 8;
+ osname=Windows8;
+ osname=Win 8;
+ processor=x86_64
