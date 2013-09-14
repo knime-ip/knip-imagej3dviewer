@@ -40,7 +40,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 	// 4D stuff
 	private Timeline timeline;
 	private TimelineGUI timelineGUI;
-	private JPanel panel4D;
+	private JPanel panel4D = new JPanel();
 
 	// rendering Universe
 	private Image3DUniverse universe;
@@ -99,8 +99,12 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		// convert to IJ
 		@SuppressWarnings("unchecked")
 		ImgPlus<T> imgPlus = ((ImgPlusValue<T>) valueToView).getImgPlus();
-
-		ImgToIJ imgToIJ = new ImgToIJ();
+		
+		if(imgPlus.numDimensions() > 5){
+			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
+			return;
+		}
+		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
 
 		if (!imgToIJ.validateMapping(imgPlus)) {
 			logger.warn("Warning: couldn't match dimensions of input picture, using Standard dimension settings as best guess");
@@ -112,7 +116,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
 			imgToIJ.setMapping(newMapping);
 		}
-
+		
 		ijImagePlus = Operations.compute(imgToIJ, imgPlus);
 
 		new StackConverter(ijImagePlus).convertToGray8();
