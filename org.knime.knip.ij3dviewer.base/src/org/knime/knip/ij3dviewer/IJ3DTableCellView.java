@@ -79,6 +79,8 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
+		// rootPanel.add(panel4D, BorderLayout.SOUTH);
+
 		return rootPanel;
 	}
 
@@ -102,19 +104,19 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
 			return;
 		}
-		ImgToIJ imgToIJ = new ImgToIJ();
+		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
 
-//		if (!imgToIJ.validateMapping(imgPlus)) {
-//			logger.warn("Warning: couldn't match dimensions of input picture, using Standard dimension settings as best guess");
-//			HashMap<AxisType, Integer> newMapping = new HashMap<AxisType, Integer>();
-//
-//			for (int d = 0; d < imgPlus.numDimensions(); d++) {
-//				newMapping.put(imgPlus.axis(0).type(), d);
-//			}
-//
-//			imgToIJ.setMapping(newMapping);
-//		}
-//		
+		if (!imgToIJ.validateMapping(imgPlus)) {
+			logger.warn("Warning: couldn't match dimensions of input picture, using Standard dimension settings as best guess");
+			HashMap<AxisType, Integer> newMapping = new HashMap<AxisType, Integer>();
+
+			for (int d = 0; d < imgPlus.numDimensions(); d++) {
+				newMapping.put(imgPlus.axis(0).type(), d);
+			}
+
+			imgToIJ.setMapping(newMapping);
+		}
+		
 		ijImagePlus = Operations.compute(imgToIJ, imgPlus);
 
 		new StackConverter(ijImagePlus).convertToGray8();
