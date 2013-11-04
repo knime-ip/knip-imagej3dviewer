@@ -45,52 +45,27 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	private final Executer executer;
 	private final IJ3DTableCellView tableCellview;
 
-	// private JMenuItem open;
-	// private JMenuItem addContentFromImage;
-	// private JMenuItem saveView;
-	// private JMenuItem loadView;
-	// private JMenuItem saveSession;
-	// private JMenuItem loadSession;
-	// private JMenuItem importObj;
-	// private JMenuItem importStl;
 	private JMenuItem color;
 	private JMenuItem bgColor;
-	// private JCheckBoxMenuItem fullscreen;
 	private JMenuItem channels;
 	private JMenuItem luts;
 	private JMenuItem transparency;
 	private JMenuItem threshold;
-	// private JMenuItem fill;
 	private JMenuItem slices;
-	// private JMenuItem updateVol;
-	// private JMenuItem delete;
 	private JMenuItem properties;
 	private JMenuItem resetView;
 	private JMenuItem snapshot;
-	// private JMenuItem record360;
-	// private JMenuItem startRecord;
-	// private JMenuItem stopRecord;
 	private JMenuItem startAnimation;
 	private JMenuItem stopAnimation;
 	private JMenuItem animationOptions;
-	// private JMenuItem light;
 	private JMenuItem viewPreferences;
-	// private JMenuItem shortcuts;
 	private JMenuItem close;
 	private JMenuItem setTransform;
 	private JMenuItem resetTransform;
 	private JMenuItem applyTransform;
 	private JMenuItem saveTransform;
 	private JMenuItem exportTransformed;
-	// private JMenuItem exportObj;
-	// private JMenuItem exportDXF;
-	// private JMenuItem exportAsciiSTL;
-	// private JMenuItem exportBinarySTL;
-	// private JMenuItem exportU3D;
-	// private JMenuItem smoothMesh;
-	// private JMenuItem smoothDialog;
 	private JMenuItem scalebar;
-	// private JMenuItem smoothAllMeshes;
 	private JMenuItem displayAsVolume;
 	private JMenuItem displayAsOrtho;
 	private JMenuItem displayAsMultiOrtho;
@@ -99,38 +74,26 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	private JMenuItem centerSelected;
 	private JMenuItem centerOrigin;
 	private JMenuItem centerUniverse;
-	// private JCheckBoxMenuItem sync;
 	private JMenuItem fitViewToUniverse;
 	private JMenuItem fitViewToContent;
-	// private JMenuItem regist;
 	private JCheckBoxMenuItem shaded;
 	private JCheckBoxMenuItem saturated;
 	private JMenuItem colorSurface;
-	// private JMenuItem pl_load;
-	// private JMenuItem pl_save;
-	// private JMenuItem pl_size;
-	// private JMenuItem pl_color;
-	// private JCheckBoxMenuItem pl_show;
 
 	private JMenuItem j3dproperties;
 	private JCheckBoxMenuItem coordinateSystem;
 	private JCheckBoxMenuItem boundingBox;
-	// private JCheckBoxMenuItem allCoordinateSystems;
 	private JCheckBoxMenuItem lock;
 	private JCheckBoxMenuItem show;
 	private JMenuItem viewposXY, viewposXZ, viewposYZ, viewnegXY, viewnegXZ,
 			viewnegYZ;
-	// private JMenuItem sphere, box, cone, tube;
 
 	private final JMenu transformMenu;
-	// private final JMenu landmarksMenu;
 	private final JMenu editMenu;
 	private JMenu selectMenu;
 	private final JMenu viewMenu;
-	// private final JMenu fileMenu;
 	private final JMenu helpMenu;
 
-	// private final JMenu addMenu;
 	public IJ3DMenubar(Image3DUniverse univ,
 			IJ3DTableCellView<T> ij3dTableCellView) {
 		super();
@@ -139,23 +102,14 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		this.tableCellview = ij3dTableCellView;
 		universe.addUniverseListener(this);
 
-		// fileMenu = createFileMenu();
-		// this.add(fileMenu);
-
 		editMenu = createEditMenu();
 		this.add(editMenu);
 
 		viewMenu = createViewMenu();
 		this.add(viewMenu);
 
-		// addMenu = createAddMenu();
-		// this.add(addMenu);
-
 		transformMenu = createTransformMenu();
 		this.add(transformMenu);
-
-		// landmarksMenu = createLandmarkMenu();
-		// this.add(landmarksMenu);
 
 		helpMenu = createHelpMenu();
 		this.add(helpMenu);
@@ -163,110 +117,12 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		contentSelected(null);
 	}
 
-	// public JMenu createFileMenu() {
-	// JMenu file = new JMenu("File");
-	//
-	// // open = new JMenuItem("Open...");
-	// // open.addActionListener(this);
-	// // file.add(open);
-	//
-	// // JMenu importt = new JMenu("Import surfaces");
-	//
-	// // importObj = new JMenuItem("WaveFront");
-	// // importObj.addActionListener(this);
-	// // importt.add(importObj);
-	// //
-	// // importStl = new JMenuItem("STL");
-	// // importStl.addActionListener(this);
-	// // importt.add(importStl);
-	//
-	// // file.add(importt);
-	//
-	// // JMenu subMenu = new JMenu("Export surfaces");
-	// // file.add(subMenu);
-	// // exportObj = new JMenuItem("WaveFront");
-	// // exportObj.addActionListener(this);
-	// // subMenu.add(exportObj);
-	//
-	// // exportDXF = new JMenuItem("DXF");
-	// // exportDXF.addActionListener(this);
-	// // subMenu.add(exportDXF);
-	// //
-	// // exportAsciiSTL = new JMenuItem("STL (ASCII)");
-	// // exportAsciiSTL.addActionListener(this);
-	// // subMenu.add(exportAsciiSTL);
-	// //
-	// // exportBinarySTL = new JMenuItem("STL (binary)");
-	// // exportBinarySTL.addActionListener(this);
-	// // subMenu.add(exportBinarySTL);
-	// //
-	// // exportU3D = new JMenuItem("U3D");
-	// // exportU3D.addActionListener(this);
-	// // subMenu.add(exportU3D);
-	//
-	// file.addSeparator();
-	//
-	// // saveView = new JMenuItem("Save View");
-	// // saveView.addActionListener(this);
-	// // file.add(saveView);
-	// //
-	// // loadView = new JMenuItem("Load View");
-	// // loadView.addActionListener(this);
-	// // file.add(loadView);
-	// //
-	// // file.addSeparator();
-	// //
-	// // saveSession = new JMenuItem("Save Session");
-	// // saveSession.addActionListener(this);
-	// // file.add(saveSession);
-	// //
-	// // loadSession = new JMenuItem("Load Session");
-	// // loadSession.addActionListener(this);
-	// // file.add(loadSession);
-	//
-	// file.addSeparator();
-	// //
-	// // close = new JMenuItem("Quit");
-	// // close.addActionListener(this);
-	// // file.add(close);
-	//
-	// return file;
-	// }
-
-	// public JMenu createAddMenu() {
-	// JMenu add = new JMenu("Add");
-	// addContentFromImage = new JMenuItem("From image");
-	// addContentFromImage.addActionListener(this);
-	// add.add(addContentFromImage);
-	//
-	// add.addSeparator();
-	//
-	// sphere = new JMenuItem("Sphere");
-	// sphere.addActionListener(this);
-	// add.add(sphere);
-	//
-	// box = new JMenuItem("Box");
-	// box.addActionListener(this);
-	// add.add(box);
-	//
-	// cone = new JMenuItem("Cone");
-	// cone.addActionListener(this);
-	// add.add(cone);
-	//
-	// tube = new JMenuItem("Tube");
-	// tube.addActionListener(this);
-	// add.add(tube);
-	//
-	// return add;
-	// }
-
 	public JMenu createEditMenu() {
 		JMenu edit = new JMenu("Edit");
 
 		edit.add(createDisplayAsSubMenu());
 		// TODO:?
 		selectMenu = createSelectMenu();
-		// edit.add(selectMenu);
 		slices = new JMenuItem("Adjust slices");
 		slices.addActionListener(this);
 		edit.add(slices);
@@ -308,64 +164,10 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		boundingBox.addItemListener(this);
 		edit.add(boundingBox);
 
-		// allCoordinateSystems = new JCheckBoxMenuItem(
-		// "Show all coordinate systems", true);
-		// allCoordinateSystems.addItemListener(this);
-		// edit.add(allCoordinateSystems);
-		//
-		// edit.addSeparator();
-		//
-		// delete = new JMenuItem("Delete");
-		// delete.setEnabled(false);
-		// delete.addActionListener(this);
-		// edit.add(delete);
-
-		// edit.addSeparator();
-
-		// edit.addSeparator();
-
-		// edit.addSeparator();
-
-		// shortcuts = new JMenuItem("Keyboard shortcuts");
-		// shortcuts.addActionListener(this);
-		// edit.add(shortcuts);
 
 		return edit;
 	}
 
-	// private JMenu createLandmarkMenu() {
-	// JMenu pl = new JMenu("Landmarks");
-	//
-	// pl_load = new JMenuItem("Load Point List");
-	// pl_load.addActionListener(this);
-	// pl.add(pl_load);
-	//
-	// pl_save = new JMenuItem("Save Point List");
-	// pl_save.addActionListener(this);
-	// pl.add(pl_save);
-	//
-	// pl_show = new JCheckBoxMenuItem("Show Point List");
-	// pl_show.addItemListener(this);
-	// pl.add(pl_show);
-	//
-	// pl.addSeparator();
-	//
-	// pl_size = new JMenuItem("Point size");
-	// pl_size.addActionListener(this);
-	// pl.add(pl_size);
-	//
-	// pl_color = new JMenuItem("Point color");
-	// pl_color.addActionListener(this);
-	// pl.add(pl_color);
-	//
-	// pl.addSeparator();
-	//
-	// regist = new JMenuItem("Register");
-	// regist.addActionListener(this);
-	// pl.add(regist);
-	//
-	// return pl;
-	// }
 
 	public JMenu createSelectMenu() {
 		return new JMenu("Select");
@@ -465,20 +267,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		view.addSeparator();
 
-		// record360 = new JMenuItem("Record 360 deg rotation");
-		// record360.addActionListener(this);
-		// view.add(record360);
-
-		// startRecord = new JMenuItem("Start freehand recording");
-		// startRecord.addActionListener(this);
-		// view.add(startRecord);
-		//
-		// stopRecord = new JMenuItem("Stop freehand recording");
-		// stopRecord.addActionListener(this);
-		// view.add(stopRecord);
-
-		// view.addSeparator();
-
 		startAnimation = new JMenuItem("Start animation");
 		startAnimation.addActionListener(this);
 		view.add(startAnimation);
@@ -493,30 +281,15 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		view.addSeparator();
 
-		// sync = new JCheckBoxMenuItem("Sync view");
-		// sync.addItemListener(this);
-		// view.add(sync);
-
-		// view.addSeparator();
-
 		scalebar = new JMenuItem("Edit Scalebar");
 		scalebar.addActionListener(this);
 		view.add(scalebar);
 
 		view.addSeparator();
 
-		// light = new JMenuItem("Adjust light");
-		// light.addActionListener(this);
-		// view.add(light);
-
 		bgColor = new JMenuItem("Change background color");
 		bgColor.addActionListener(this);
 		view.add(bgColor);
-
-		// fullscreen = new JCheckBoxMenuItem("Fullscreen");
-		// fullscreen.setState(universe.isFullScreen());
-		// fullscreen.addItemListener(this);
-		// view.add(fullscreen);
 
 		viewPreferences = new JMenuItem("View Preferences");
 		viewPreferences.addActionListener(this);
@@ -703,19 +476,8 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.changeChannels(getSelected());
 		else if (src == transparency)
 			executer.changeTransparency(getSelected());
-		// else if (src == open)
-		// executer.addContentFromFile();
-		// else if (src == addContentFromImage)
-		// executer.addContentFromImage(null);
-		// else if (src == regist)
-		// executer.register();
-		// else if (src == delete)
-		// executer.delete(getSelected());
 		else if (src == resetView) {
-			// TODO FIX this
 			tableCellview.updateComponent(tableCellview.getDataValue());
-			// executer.resetView();
-
 		} else if (src == centerSelected)
 			executer.centerSelected(getSelected());
 		else if (src == centerOrigin)
@@ -728,12 +490,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.fitViewToContent(getSelected());
 		else if (src == snapshot)
 			executer.snapshot();
-		// else if (src == record360)
-		// executer.record360();
-		// else if (src == startRecord)
-		// executer.startFreehandRecording();
-		// else if (src == stopRecord)
-		// executer.stopFreehandRecording();
 		else if (src == startAnimation)
 			executer.startAnimation();
 		else if (src == stopAnimation)
@@ -771,44 +527,8 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.applyTransform(getSelected());
 		else if (src == saveTransform)
 			executer.saveTransform(getSelected());
-		// else if (src == exportTransformed)
-		// executer.exportTransformed(getSelected());
-		// else if (src == pl_load)
-		// executer.loadPointList(getSelected());
-		// else if (src == pl_save)
-		// executer.savePointList(getSelected());
-		// else if (src == pl_size)
-		// executer.changePointSize(getSelected());
-		// else if (src == pl_color)
-		// executer.changePointColor(getSelected());
-		// else if (src == saveView)
-		// executer.saveView();
-		// else if (src == loadView)
-		// executer.loadView();
-		// else if (src == saveSession)
-		// executer.saveSession();
-		// else if (src == loadSession)
-		// executer.loadSession();
-		// else if (src == importObj)
-		// executer.importWaveFront();
-		// else if (src == importStl)
-		// executer.importSTL();
-		// else if (src == exportDXF)
-		// executer.saveAsDXF();
-		// else if (src == exportObj)
-		// executer.saveAsWaveFront();
-		// else if (src == exportU3D)
-		// executer.saveAsU3D();
-		// else if (src == exportAsciiSTL)
-		// executer.saveAsAsciiSTL();
-		// else if (src == exportBinarySTL)
-		// executer.saveAsBinarySTL();
-		// else if (src == light)
-		// executer.adjustLight();
 		else if (src == viewPreferences)
 			executer.viewPreferences();
-		// else if (src == shortcuts)
-		// executer.editShortcuts();
 		else if (src == j3dproperties)
 			executer.j3dproperties();
 		else if (viewposXY == src)
@@ -859,15 +579,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToNegativeYZ();
 				}
 			});
-		// else if (src == sphere) {
-		// executer.addSphere();
-		// } else if (src == box) {
-		// executer.addBox();
-		// } else if (src == cone) {
-		// executer.addCone();
-		// } else if (src == tube) {
-		// executer.addTube();
-		// }
 	}
 
 	@Override
@@ -876,8 +587,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		Content c = getSelected();
 		if (src == coordinateSystem)
 			executer.showCoordinateSystem(c, coordinateSystem.getState());
-		// else if (src == allCoordinateSystems)
-		// executer.showAllCoordinateSystems(allCoordinateSystems.getState());
 		else if (src == boundingBox)
 			executer.showBoundingBox(c, boundingBox.getState());
 		else if (src == show)
@@ -888,12 +597,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.setShaded(c, shaded.getState());
 		else if (src == saturated)
 			executer.setSaturatedVolumeRendering(c, saturated.getState());
-		// else if (src == pl_show)
-		// executer.showPointList(c, pl_show.getState());
-		// else if (src == sync)
-		// executer.sync(sync.getState());
-		// else if (src == fullscreen)
-		// executer.setFullScreen(fullscreen.getState());
 	}
 
 	private Content getSelected() {
@@ -975,11 +678,8 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	private void doUpdateMenus() {
 
-		// fullscreen.setState(universe.isFullScreen());
-
 		Content c = getSelected();
 
-		// delete.setEnabled(c != null);
 		centerSelected.setEnabled(c != null);
 
 		displayAsVolume.setEnabled(c != null);
@@ -992,17 +692,9 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		transparency.setEnabled(c != null);
 		threshold.setEnabled(c != null);
 		channels.setEnabled(c != null);
-		// shaded.setEnabled(c != null);
-		// saturated.setEnabled(c != null);
 
 		show.setEnabled(c != null);
 		coordinateSystem.setEnabled(c != null);
-
-		// pl_load.setEnabled(c != null);
-		// pl_save.setEnabled(c != null);
-		// pl_show.setEnabled(c != null);
-		// pl_size.setEnabled(c != null);
-		// pl_color.setEnabled(c != null);
 
 		lock.setEnabled(c != null);
 		setTransform.setEnabled(c != null);
@@ -1025,18 +717,10 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		int t = c.getType();
 
 		slices.setEnabled(t == Content.ORTHO || t == Content.MULTIORTHO);
-		// updateVol.setEnabled(t == Content.VOLUME || t == Content.ORTHO
-		// || t == Content.MULTIORTHO);
-		// fill.setEnabled(t == Content.VOLUME);
-		// shaded.setEnabled(t == Content.SURFACE_PLOT2D || t == Content.SURFACE
-		// || t == Content.CUSTOM);
-		// saturated.setEnabled(t == Content.VOLUME);
-		// colorSurface.setEnabled(t == Content.SURFACE || t == Content.CUSTOM);
 
 		coordinateSystem.setState(c.hasCoord());
 		lock.setState(c.isLocked());
 		show.setState(c.isVisible());
-		// pl_show.setState(c.isPLVisible());
 
 		ImagePlus i = c.getImage();
 		displayAsVolume.setEnabled(t != Content.VOLUME && i != null);
