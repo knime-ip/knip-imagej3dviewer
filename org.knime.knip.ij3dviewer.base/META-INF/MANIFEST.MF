@@ -11,4 +11,5 @@ Bundle-ClassPath: knip_viewer3d.jar,
  lib/j3dcore.jar,
  lib/j3dutils.jar,
  lib/vecmath.jar
+Require-Bundle: ij3d;bundle-version="1.0.0"
 
