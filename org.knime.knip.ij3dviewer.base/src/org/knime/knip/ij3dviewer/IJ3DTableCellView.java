@@ -56,13 +56,11 @@ import ij3d.Image3DUniverse;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.HashMap;
 
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 
-import net.imglib2.meta.AxisType;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.type.numeric.RealType;

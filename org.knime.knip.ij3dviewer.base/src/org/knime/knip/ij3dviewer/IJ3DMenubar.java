@@ -29,8 +29,6 @@ import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.vecmath.Color3f;
 
-import org.knime.core.data.DataValue;
-
 import net.imglib2.type.numeric.RealType;
 
 @SuppressWarnings("serial")
@@ -43,7 +41,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	private final Image3DUniverse universe;
 	private final Executer executer;
-	private final IJ3DTableCellView tableCellview;
+	private final IJ3DTableCellView<T> tableCellview;
 
 	private JMenuItem color;
 	private JMenuItem bgColor;
@@ -64,7 +62,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	private JMenuItem resetTransform;
 	private JMenuItem applyTransform;
 	private JMenuItem saveTransform;
-	private JMenuItem exportTransformed;
 	private JMenuItem scalebar;
 	private JMenuItem displayAsVolume;
 	private JMenuItem displayAsOrtho;
@@ -197,10 +194,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		transform.add(saveTransform);
 
 		transform.addSeparator();
-
-		exportTransformed = new JMenuItem("Export transformed image");
-		exportTransformed.addActionListener(this);
-		transform.add(exportTransformed);
 
 		return transform;
 	}
@@ -701,7 +694,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		applyTransform.setEnabled(c != null);
 		resetTransform.setEnabled(c != null);
 		saveTransform.setEnabled(c != null);
-		exportTransformed.setEnabled(c != null);
 
 		// update select menu
 		Content sel = universe.getSelected();
