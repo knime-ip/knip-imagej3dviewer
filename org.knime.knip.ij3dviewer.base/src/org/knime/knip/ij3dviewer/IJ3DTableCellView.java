@@ -77,6 +77,7 @@ import org.knime.knip.imagej2.core.util.ImgToIJ;
 
 import view4d.Timeline;
 import view4d.TimelineGUI;
+
 /* Helper class for the IJ3D viewer, provides the TableCellView
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
@@ -85,7 +86,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 	private NodeLogger logger = NodeLogger.getLogger(IJ3DTableCellView.class);
 
 	// Default rendering Type
-	private final int renderType = ContentConstants.VOLUME; //TODO
+	private final int renderType = ContentConstants.VOLUME; // TODO
 
 	// 4D stuff
 	private Timeline timeline;
@@ -146,29 +147,24 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
 		@SuppressWarnings("unchecked")
 		ImgPlus<T> imgPlus = ((ImgPlusValue<T>) valueToView).getImgPlus();
-		
-		//escapes 
-		if(imgPlus.numDimensions() > 5 ){
+
+		// escapes
+		if (imgPlus.numDimensions() > 5) {
 			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
 			return;
 		}
-		
 		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
-		
-		//validate if mapping can be inferred automatically
+
+		// validate if mapping can be inferred automatically
 		if (!imgToIJ.validateMapping(imgPlus)) {
-			logger.warn("Warning: couldn't match dimensions of input picture, using Standard dimension settings as best guess");
-			HashMap<AxisType, Integer> newMapping = new HashMap<AxisType, Integer>();
-
-			for (int d = 0; d < imgPlus.numDimensions(); d++) {
-				newMapping.put(imgPlus.axis(0).type(), d);
+			if (!imgToIJ.inferMapping(imgPlus)) {
+				logger.warn("Warning: couldn't match dimensions of input picture");
+				return;
 			}
-
-			imgToIJ.setMapping(newMapping);
 		}
-		//convert to IJ
+		// convert to IJ
 		ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-		
+
 		new StackConverter(ijImagePlus).convertToGray8();
 
 		switch (renderType) {
@@ -193,7 +189,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		}
 		universe.updateTimeline();
 
-		//enables the timeline gui if picture has 4 or 5 Dimensions
+		// enables the timeline gui if picture has 4 or 5 Dimensions
 		if (imgPlus.numDimensions() > 3) {
 			timelineGUI = new TimelineGUI(timeline);
 			panel4D = timelineGUI.getPanel();
