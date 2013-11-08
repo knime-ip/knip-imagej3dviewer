@@ -193,8 +193,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		saveTransform.addActionListener(this);
 		transform.add(saveTransform);
 
-		transform.addSeparator();
-
 		return transform;
 	}
 
