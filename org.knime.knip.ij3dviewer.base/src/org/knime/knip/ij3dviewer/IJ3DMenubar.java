@@ -39,57 +39,54 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		public void colorChanged(Color3f color);
 	}
 
-	private final Image3DUniverse universe;
 	private final Executer executer;
 	private final IJ3DTableCellView<T> tableCellview;
+	private final Image3DUniverse universe;
 
-	private JMenuItem color;
+	private JCheckBoxMenuItem boundingBox;
+	private JCheckBoxMenuItem coordinateSystem;
+	private JCheckBoxMenuItem lock;
+	private JCheckBoxMenuItem saturated;
+	private JCheckBoxMenuItem shaded;
+	private JCheckBoxMenuItem show;
+	private JMenuItem animationOptions;
+	private JMenuItem applyTransform;
 	private JMenuItem bgColor;
+	private JMenuItem centerOrigin;
+	private JMenuItem centerUniverse;
 	private JMenuItem channels;
+	private JMenuItem close;
+	private JMenuItem color;
+	private JMenuItem colorSurface;
+	private JMenuItem displayAsMultiOrtho;
+	private JMenuItem displayAsOrtho;
+	private JMenuItem displayAsSurface;
+	private JMenuItem displayAsSurfacePlot;
+	private JMenuItem displayAsVolume;
+	private JMenuItem fitViewToContent;
+	private JMenuItem fitViewToUniverse;
+	private JMenuItem j3dproperties;
 	private JMenuItem luts;
-	private JMenuItem transparency;
-	private JMenuItem threshold;
-	private JMenuItem slices;
 	private JMenuItem properties;
+	private JMenuItem resetTransform;
 	private JMenuItem resetView;
+	private JMenuItem saveTransform;
+	private JMenuItem scalebar;
+	private JMenuItem setTransform;
+	private JMenuItem slices;
 	private JMenuItem snapshot;
 	private JMenuItem startAnimation;
 	private JMenuItem stopAnimation;
-	private JMenuItem animationOptions;
+	private JMenuItem threshold;
+	private JMenuItem transparency;
 	private JMenuItem viewPreferences;
-	private JMenuItem close;
-	private JMenuItem setTransform;
-	private JMenuItem resetTransform;
-	private JMenuItem applyTransform;
-	private JMenuItem saveTransform;
-	private JMenuItem scalebar;
-	private JMenuItem displayAsVolume;
-	private JMenuItem displayAsOrtho;
-	private JMenuItem displayAsMultiOrtho;
-	private JMenuItem displayAsSurface;
-	private JMenuItem displayAsSurfacePlot;
-	private JMenuItem centerSelected;
-	private JMenuItem centerOrigin;
-	private JMenuItem centerUniverse;
-	private JMenuItem fitViewToUniverse;
-	private JMenuItem fitViewToContent;
-	private JCheckBoxMenuItem shaded;
-	private JCheckBoxMenuItem saturated;
-	private JMenuItem colorSurface;
-
-	private JMenuItem j3dproperties;
-	private JCheckBoxMenuItem coordinateSystem;
-	private JCheckBoxMenuItem boundingBox;
-	private JCheckBoxMenuItem lock;
-	private JCheckBoxMenuItem show;
 	private JMenuItem viewposXY, viewposXZ, viewposYZ, viewnegXY, viewnegXZ,
 			viewnegYZ;
 
-	private final JMenu transformMenu;
 	private final JMenu editMenu;
-	private JMenu selectMenu;
-	private final JMenu viewMenu;
 	private final JMenu helpMenu;
+	private final JMenu transformMenu;
+	private final JMenu viewMenu;
 
 	public IJ3DMenubar(Image3DUniverse univ,
 			IJ3DTableCellView<T> ij3dTableCellView) {
@@ -119,7 +116,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		edit.add(createDisplayAsSubMenu());
 		// TODO:?
-		selectMenu = createSelectMenu();
 		slices = new JMenuItem("Adjust slices");
 		slices.addActionListener(this);
 		edit.add(slices);
@@ -161,13 +157,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		boundingBox.addItemListener(this);
 		edit.add(boundingBox);
 
-
 		return edit;
-	}
-
-
-	public JMenu createSelectMenu() {
-		return new JMenu("Select");
 	}
 
 	public JMenu createTransformMenu() {
@@ -205,9 +195,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		// center submenu
 		JMenu menu = new JMenu("Center");
-		centerSelected = new JMenuItem("Selected content");
-		centerSelected.addActionListener(this);
-		menu.add(centerSelected);
 
 		centerOrigin = new JMenuItem("Origin");
 		centerOrigin.addActionListener(this);
@@ -469,9 +456,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.changeTransparency(getSelected());
 		else if (src == resetView) {
 			tableCellview.updateComponent(tableCellview.getDataValue());
-		} else if (src == centerSelected)
-			executer.centerSelected(getSelected());
-		else if (src == centerOrigin)
+		} else if (src == centerOrigin)
 			executer.centerOrigin();
 		else if (src == centerUniverse)
 			executer.centerUniverse();
@@ -622,35 +607,10 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	@Override
 	public void contentAdded(Content c) {
-		updateMenus();
-		if (c == null)
-			return;
-		final String name = c.getName();
-		final JCheckBoxMenuItem item = new JCheckBoxMenuItem(name);
-		item.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (item.getState())
-					executer.select(name);
-				else
-					executer.select(null);
-			}
-		});
-		selectMenu.add(item);
 	}
 
 	@Override
 	public void contentRemoved(Content c) {
-		updateMenus();
-		if (c == null)
-			return;
-		for (int i = 0; i < selectMenu.getItemCount(); i++) {
-			JMenuItem item = selectMenu.getItem(i);
-			if (item.getText().equals(c.getName())) {
-				selectMenu.remove(i);
-				return;
-			}
-		}
 	}
 
 	@Override
@@ -671,8 +631,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		Content c = getSelected();
 
-		centerSelected.setEnabled(c != null);
-
 		displayAsVolume.setEnabled(c != null);
 		displayAsSurface.setEnabled(c != null);
 		displayAsSurfacePlot.setEnabled(c != null);
@@ -692,14 +650,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		applyTransform.setEnabled(c != null);
 		resetTransform.setEnabled(c != null);
 		saveTransform.setEnabled(c != null);
-
-		// update select menu
-		Content sel = universe.getSelected();
-		for (int i = 0; i < selectMenu.getItemCount(); i++) {
-			JMenuItem item = selectMenu.getItem(i);
-			((JCheckBoxMenuItem) item).setState(sel != null
-					&& sel.getName().equals(item.getText()));
-		}
 
 		if (c == null)
 			return;
