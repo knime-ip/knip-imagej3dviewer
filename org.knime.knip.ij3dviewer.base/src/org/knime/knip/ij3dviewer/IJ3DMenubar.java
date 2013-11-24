@@ -607,6 +607,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	@Override
 	public void contentAdded(Content c) {
+		updateMenus();
 	}
 
 	@Override

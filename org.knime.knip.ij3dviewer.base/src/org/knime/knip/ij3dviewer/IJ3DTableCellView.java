@@ -116,7 +116,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
 		universe = new Image3DUniverse();
-		timeline = new Timeline(universe);
+		timeline = universe.getTimeline();
 
 		// Container for the viewComponent
 		rootPanel = new JPanel(new BorderLayout());
