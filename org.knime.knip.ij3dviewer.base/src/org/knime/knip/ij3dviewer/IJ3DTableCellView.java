@@ -191,6 +191,8 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		if (imgPlus.numDimensions() > 3) {
 			timelineGUI = new TimelineGUI(timeline);
 			panel4D = timelineGUI.getPanel();
+			universe.setTimelineGui(timelineGUI);
+
 			panel4D.setVisible(true);
 			rootPanel.add(panel4D, BorderLayout.SOUTH);
 		} else {
