@@ -56,13 +56,11 @@ import ij3d.Image3DUniverse;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.HashMap;
 
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.ToolTipManager;
 
-import net.imglib2.meta.AxisType;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.type.numeric.RealType;
@@ -118,7 +116,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
 		universe = new Image3DUniverse();
-		timeline = new Timeline(universe);
+		timeline = universe.getTimeline();
 
 		// Container for the viewComponent
 		rootPanel = new JPanel(new BorderLayout());
@@ -193,6 +191,8 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		if (imgPlus.numDimensions() > 3) {
 			timelineGUI = new TimelineGUI(timeline);
 			panel4D = timelineGUI.getPanel();
+			universe.setTimelineGui(timelineGUI);
+
 			panel4D.setVisible(true);
 			rootPanel.add(panel4D, BorderLayout.SOUTH);
 		} else {
