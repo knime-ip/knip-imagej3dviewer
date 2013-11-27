@@ -99,9 +99,15 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
 	private JPanel rootPanel;
 
+	//Stores the Image that the viewer displays
 	private DataValue dataValue;
 
-	public DataValue getDataValue() {
+	/**
+	 *
+	 * @return the immage the viewer is displaying
+	 */
+
+	public final DataValue getDataValue() {
 		return dataValue;
 	}
 
@@ -110,11 +116,12 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
 	// Creates a viewer which will be updated on "updateComponent"
 	@Override
-	public Component getViewComponent() {
+	public final Component getViewComponent() {
 		// Fixes Canvas covering menu
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
+		//universe for rendering the image
 		universe = new Image3DUniverse();
 		timeline = universe.getTimeline();
 
@@ -123,6 +130,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
 		// Menubar
 		IJ3DMenubar<T> ij3dbar = new IJ3DMenubar<T>(universe, this);
+		//add menubar and 3Duniverse to the panel
 
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
@@ -132,11 +140,11 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
 	/**
 	 * updates the Component, called whenever a new picture is selected, or view
-	 * is reset
+	 * is reset.
+	 * @param The ImgPlus that is to be displayed by the viewer.
 	 */
-
 	@Override
-	public void updateComponent(DataValue valueToView) {
+	public final void updateComponent(final DataValue valueToView) {
 		// New image arrives
 		universe.resetView();
 		universe.removeAllContents(); // cleanup universe
@@ -203,21 +211,21 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 	}
 
 	@Override
-	public String getName() {
+	public final String getName() {
 		return "Java3D Viewer";
 	}
 
 	@Override
-	public String getDescription() {
+	public final String getDescription() {
 		return " 3D viewer";
 	};
 
 	@Override
-	public void loadConfigurationFrom(ConfigRO config) {
+	public void loadConfigurationFrom(final ConfigRO config) {
 	}
 
 	@Override
-	public void saveConfigurationTo(ConfigWO config) {
+	public void saveConfigurationTo(final ConfigWO config) {
 	}
 
 	@Override
