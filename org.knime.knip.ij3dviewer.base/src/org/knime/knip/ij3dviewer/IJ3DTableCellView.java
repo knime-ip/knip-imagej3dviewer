@@ -181,9 +181,6 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		case ContentConstants.SURFACE_PLOT2D:
 			c = universe.addSurfacePlot(ijImagePlus);
 			break;
-		default:
-			throw new RuntimeException(
-					"no RenderMode selected, This should not have happend!!!");
 		}
 		universe.updateTimeline();
 
