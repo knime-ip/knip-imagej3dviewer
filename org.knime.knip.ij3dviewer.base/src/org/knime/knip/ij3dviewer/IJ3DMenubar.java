@@ -88,8 +88,8 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	private final JMenu transformMenu;
 	private final JMenu viewMenu;
 
-	public IJ3DMenubar(Image3DUniverse univ,
-			IJ3DTableCellView<T> ij3dTableCellView) {
+	public IJ3DMenubar(final Image3DUniverse univ,
+			final IJ3DTableCellView<T> ij3dTableCellView) {
 		super();
 		this.universe = univ;
 		this.executer = universe.getExecuter();
@@ -111,11 +111,10 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		contentSelected(null);
 	}
 
-	public JMenu createEditMenu() {
+	private JMenu createEditMenu() {
 		JMenu edit = new JMenu("Edit");
 
 		edit.add(createDisplayAsSubMenu());
-		// TODO:?
 		slices = new JMenuItem("Adjust slices");
 		slices.addActionListener(this);
 		edit.add(slices);
@@ -160,7 +159,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return edit;
 	}
 
-	public JMenu createTransformMenu() {
+	private JMenu createTransformMenu() {
 		JMenu transform = new JMenu("Transformation");
 
 		lock = new JCheckBoxMenuItem("Lock");
@@ -186,7 +185,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return transform;
 	}
 
-	public JMenu createViewMenu() {
+	private JMenu createViewMenu() {
 		JMenu view = new JMenu("View");
 
 		resetView = new JMenuItem("Reset view");
@@ -276,7 +275,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return view;
 	}
 
-	public JMenu createHelpMenu() {
+	private JMenu createHelpMenu() {
 		JMenu help = new JMenu("Help");
 		j3dproperties = new JMenuItem("Java 3D Properties");
 		j3dproperties.addActionListener(this);
@@ -289,7 +288,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return help;
 	}
 
-	public JMenu createAttributesSubMenu() {
+	private JMenu createAttributesSubMenu() {
 		JMenu attributes = new JMenu("Attributes");
 
 		luts = new JMenuItem("Transfer function");
@@ -328,7 +327,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return attributes;
 	}
 
-	public JMenu createDisplayAsSubMenu() {
+	private JMenu createDisplayAsSubMenu() {
 		JMenu display = new JMenu("Display as");
 
 		displayAsVolume = new JMenuItem("Volume");
@@ -354,7 +353,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return display;
 	}
 
-	public void changeBackgroundColor() {
+	private void changeBackgroundColor() {
 		final Background background = ((ImageCanvas3D) universe.getCanvas())
 				.getBG();
 		final Color3f oldC = new Color3f();
@@ -362,7 +361,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		final ColorListener colorListener = new ColorListener() {
 			@Override
-			public void colorChanged(Color3f color) {
+			public void colorChanged(final Color3f color) {
 				background.setColor(color);
 				((ImageCanvas3D) universe.getCanvas()).render();
 			}
@@ -371,19 +370,21 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 				false, false);
 	}
 
-	public void showColorDialog(final String title, final Color3f oldC,
-			final ColorListener colorListener, boolean showDefaultCheckbox,
-			boolean showTimepointsCheckbox) {
+	private void showColorDialog(final String title, final Color3f oldC,
+			final ColorListener colorListener, final boolean showDefaultCheckbox,
+			final boolean showTimepointsCheckbox) {
 		final GenericDialog gd = new GenericDialog(title, universe.getWindow());
 
-		if (showDefaultCheckbox)
+		if (showDefaultCheckbox) {
 			gd.addCheckbox("Use default color", oldC == null);
+		}
 		gd.addSlider("Red", 0, 255, oldC == null ? 255 : oldC.x * 255);
 		gd.addSlider("Green", 0, 255, oldC == null ? 0 : oldC.y * 255);
 		gd.addSlider("Blue", 0, 255, oldC == null ? 0 : oldC.z * 255);
 
-		if (showTimepointsCheckbox)
+		if (showTimepointsCheckbox) {
 			gd.addCheckbox("Apply to all timepoints", true);
+		}
 
 		final Scrollbar rSlider = (Scrollbar) gd.getSliders().get(0);
 		final Scrollbar gSlider = (Scrollbar) gd.getSliders().get(1);
@@ -397,7 +398,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			final Checkbox cBox = (Checkbox) gd.getCheckboxes().get(0);
 			cBox.addItemListener(new ItemListener() {
 				@Override
-				public void itemStateChanged(ItemEvent e) {
+				public void itemStateChanged(final ItemEvent e) {
 					gd.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 					rSlider.setEnabled(!cBox.getState());
 					gSlider.setEnabled(!cBox.getState());
@@ -413,7 +414,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 		AdjustmentListener listener = new AdjustmentListener() {
 			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
+			public void adjustmentValueChanged(final AdjustmentEvent e) {
 				colorListener.colorChanged(new Color3f(
 						rSlider.getValue() / 255f, gSlider.getValue() / 255f,
 						bSlider.getValue() / 255f));
@@ -426,10 +427,10 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		gd.setModal(false);
 		gd.addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosed(WindowEvent e) {
-				if (gd.wasCanceled())
+			public void windowClosed(final WindowEvent e) {
+				if (gd.wasCanceled()) {
 					colorListener.colorChanged(oldC);
-				else {
+				} else {
 					gd.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 					gd.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				}
@@ -439,42 +440,42 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public final void actionPerformed(final ActionEvent e) {
 		Object src = e.getSource();
 
-		if (src == color)
+		if (src == color) {
 			executer.changeColor(getSelected());
-		else if (src == bgColor)
+		} else if (src == bgColor) {
 			changeBackgroundColor();
-		else if (src == scalebar)
+		} else if (src == scalebar) {
 			executer.editScalebar();
-		else if (src == luts)
+		} else if (src == luts) {
 			executer.adjustLUTs(getSelected());
-		else if (src == channels)
+		} else if (src == channels) {
 			executer.changeChannels(getSelected());
-		else if (src == transparency)
+		} else if (src == transparency) {
 			executer.changeTransparency(getSelected());
-		else if (src == resetView) {
+		} else if (src == resetView) {
 			tableCellview.updateComponent(tableCellview.getDataValue());
-		} else if (src == centerOrigin)
+		} else if (src == centerOrigin) {
 			executer.centerOrigin();
-		else if (src == centerUniverse)
+		} else if (src == centerUniverse) {
 			executer.centerUniverse();
-		else if (src == fitViewToUniverse)
+		} else if (src == fitViewToUniverse) {
 			executer.fitViewToUniverse();
-		else if (src == fitViewToContent)
+		} else if (src == fitViewToContent) {
 			executer.fitViewToContent(getSelected());
-		else if (src == snapshot)
+		} else if (src == snapshot) {
 			executer.snapshot();
-		else if (src == startAnimation)
+		} else if (src == startAnimation) {
 			executer.startAnimation();
-		else if (src == stopAnimation)
+		} else if (src == stopAnimation) {
 			executer.stopAnimation();
-		else if (src == animationOptions)
+		} else if (src == animationOptions) {
 			executer.changeAnimationOptions();
-		else if (src == threshold)
+		} else if (src == threshold) {
 			executer.changeThreshold(getSelected());
-		else if (src == displayAsVolume) {
+		} else if (src == displayAsVolume) {
 			executer.displayAs(getSelected(), Content.VOLUME);
 			updateMenus();
 		} else if (src == displayAsOrtho) {
@@ -489,25 +490,25 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		} else if (src == displayAsSurfacePlot) {
 			executer.displayAs(getSelected(), Content.SURFACE_PLOT2D);
 			updateMenus();
-		} else if (src == slices)
+		} else if (src == slices) {
 			executer.changeSlices(getSelected());
-		else if (src == close)
+		} else if (src == close) {
 			executer.close();
-		else if (src == resetTransform)
+		} else if (src == resetTransform) {
 			executer.resetTransform(getSelected());
-		else if (src == setTransform)
+		} else if (src == setTransform) {
 			executer.setTransform(getSelected());
-		else if (src == properties)
+		} else if (src == properties) {
 			executer.contentProperties(getSelected());
-		else if (src == applyTransform)
+		} else if (src == applyTransform) {
 			executer.applyTransform(getSelected());
-		else if (src == saveTransform)
+		} else if (src == saveTransform) {
 			executer.saveTransform(getSelected());
-		else if (src == viewPreferences)
+		} else if (src == viewPreferences) {
 			executer.viewPreferences();
-		else if (src == j3dproperties)
+		} else if (src == j3dproperties) {
 			executer.j3dproperties();
-		else if (viewposXY == src)
+		} else if (viewposXY == src) {
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -515,7 +516,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToPositiveXY();
 				}
 			});
-		else if (viewposXZ == src)
+		} else if (viewposXZ == src) {
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -523,7 +524,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToPositiveXZ();
 				}
 			});
-		else if (viewposYZ == src)
+		} else if (viewposYZ == src) {
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -531,7 +532,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToPositiveYZ();
 				}
 			});
-		else if (viewnegXY == src)
+		} else if (viewnegXY == src) {
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -539,7 +540,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToNegativeXY();
 				}
 			});
-		else if (viewnegXZ == src)
+		} else if (viewnegXZ == src) {
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -547,7 +548,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToNegativeXZ();
 				}
 			});
-		else if (viewnegYZ == src)
+		} else if (viewnegYZ == src) {
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -555,42 +556,46 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					universe.rotateToNegativeYZ();
 				}
 			});
+		}
 	}
 
 	@Override
-	public void itemStateChanged(ItemEvent e) {
+	public final void itemStateChanged(final ItemEvent e) {
 		Object src = e.getSource();
 		Content c = getSelected();
-		if (src == coordinateSystem)
+		if (src == coordinateSystem) {
 			executer.showCoordinateSystem(c, coordinateSystem.getState());
-		else if (src == boundingBox)
+		} else if (src == boundingBox) {
 			executer.showBoundingBox(c, boundingBox.getState());
-		else if (src == show)
+		} else if (src == show) {
 			executer.showContent(c, show.getState());
-		else if (src == lock)
+		} else if (src == lock) {
 			executer.setLocked(c, lock.getState());
-		else if (src == shaded)
+		} else if (src == shaded) {
 			executer.setShaded(c, shaded.getState());
-		else if (src == saturated)
+		} else if (src == saturated) {
 			executer.setSaturatedVolumeRendering(c, saturated.getState());
+		}
 	}
 
 	private Content getSelected() {
 		Content c = universe.getSelected();
-		if (c != null)
+		if (c != null) {
 			return c;
-		if (universe.getContents().size() == 1)
+		}
+		if (universe.getContents().size() == 1) {
 			return (Content) universe.contents().next();
+		}
 		return null;
 	}
 
 	// Universe Listener interface
 	@Override
-	public void transformationStarted(View view) {
+	public void transformationStarted(final View view) {
 	}
 
 	@Override
-	public void transformationFinished(View view) {
+	public void transformationFinished(final View view) {
 	}
 
 	@Override
@@ -598,7 +603,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	@Override
-	public void transformationUpdated(View view) {
+	public void transformationUpdated(final View view) {
 	}
 
 	@Override
@@ -606,20 +611,20 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	@Override
-	public void contentAdded(Content c) {
+	public final void contentAdded(final Content c) {
 		updateMenus();
 	}
 
 	@Override
-	public void contentRemoved(Content c) {
+	public void contentRemoved(final Content c) {
 	}
 
 	@Override
-	public void contentSelected(Content c) {
+	public final void contentSelected(final Content c) {
 		updateMenus();
 	}
 
-	public void updateMenus() {
+	public final void updateMenus() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -652,8 +657,9 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		resetTransform.setEnabled(c != null);
 		saveTransform.setEnabled(c != null);
 
-		if (c == null)
+		if (c == null) {
 			return;
+		}
 
 		int t = c.getType();
 
@@ -673,6 +679,6 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	@Override
-	public void contentChanged(Content c) {
+	public void contentChanged(final Content c) {
 	}
 }
