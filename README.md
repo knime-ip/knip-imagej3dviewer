@@ -1,4 +1,4 @@
 knip-imagej3dviewer
 ===================
 
-KNIME ImageJ3D Viewer Integration
+KNIME ImageJ 3D Viewer Integration
