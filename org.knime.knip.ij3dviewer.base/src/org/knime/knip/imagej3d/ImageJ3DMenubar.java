@@ -1,4 +1,4 @@
-package org.knime.knip.ij3dviewer;
+package org.knime.knip.imagej3d;
 
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
@@ -32,7 +32,7 @@ import javax.vecmath.Color3f;
 import net.imglib2.type.numeric.RealType;
 
 @SuppressWarnings("serial")
-public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
+public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		ActionListener, ItemListener, UniverseListener {
 
 	private interface ColorListener {
@@ -40,7 +40,7 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private final Executer executer;
-	private final IJ3DTableCellView<T> tableCellview;
+	private final ImageJ3DTableCellView<T> tableCellview;
 	private final Image3DUniverse universe;
 
 	private JCheckBoxMenuItem boundingBox;
@@ -88,8 +88,8 @@ public class IJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	private final JMenu transformMenu;
 	private final JMenu viewMenu;
 
-	public IJ3DMenubar(final Image3DUniverse univ,
-			final IJ3DTableCellView<T> ij3dTableCellView) {
+	public ImageJ3DMenubar(final Image3DUniverse univ,
+			final ImageJ3DTableCellView<T> ij3dTableCellView) {
 		super();
 		this.universe = univ;
 		this.executer = universe.getExecuter();

@@ -1,15 +1,23 @@
 Manifest-Version: 1.0
-Bundle-Name: Java 3D Viewer Integration
-Bundle-SymbolicName: org.knime.knip.ij3dviewer.base;singleton:=true
+Bundle-Name: KNIME ImageJ 3d Viewer Integration
+Bundle-SymbolicName: org.knime.knip.imagej3d.base;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 0.7.1.qualifier
-Fragment-Host: org.knime.knip.imagej2.core;bundle-version="0.7.1.qualifier"
-Bundle-Vendor: --
+Bundle-Version: 0.7.6.qualifier
+Eclipse-RegisterBuddy: org.knime.knip.imagej2.core
+Bundle-Vendor: University of Konstanz
+Require-Bundle: org.knime.workbench.repository;bundle-version="[2.8.0,3.0.0)",
+ org.apache.log4j;bundle-version="1.2.15",
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.knime.knip.base;bundle-version="[1.1.0,1.1.1)",
+ org.knime.knip.core;bundle-version="[1.1.0,1.1.1)",
+ org.knime.knip.imagej2.core;bundle-version="0.7.6",
+ org.knime.core;bundle-version="2.8.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: knip_viewer3d.jar,
- lib/ImageJ_3D_Viewer.jar,
+Bundle-ClassPath: .,
+ lib/ij3d_knip_build.jar,
  lib/j3dcore.jar,
  lib/j3dutils.jar,
  lib/vecmath.jar
-Require-Bundle: ij3d;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
 

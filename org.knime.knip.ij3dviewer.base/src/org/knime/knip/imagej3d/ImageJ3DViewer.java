@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.ij3dviewer;
+package org.knime.knip.imagej3d;
 
 import net.imglib2.type.numeric.RealType;
 
@@ -62,11 +62,11 @@ import org.knime.knip.base.nodes.view.TableCellViewFactory;
  *
  * @param <T>
  */
-public class IJ3DViewer<T extends RealType<T>> implements TableCellViewFactory {
+public class ImageJ3DViewer<T extends RealType<T>> implements TableCellViewFactory {
 
 	@Override
 	public final TableCellView[] createTableCellViews() {
-		return new TableCellView[] { new IJ3DTableCellView<T>() };
+		return new TableCellView[] { new ImageJ3DTableCellView<T>() };
 	}
 
 	@Override

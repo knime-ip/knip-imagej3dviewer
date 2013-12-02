@@ -46,7 +46,7 @@
  * --------------------------------------------------------------------- *
  *
  */
-package org.knime.knip.ij3dviewer;
+package org.knime.knip.imagej3d;
 
 import ij.ImagePlus;
 import ij.process.StackConverter;
@@ -79,9 +79,9 @@ import view4d.TimelineGUI;
 /* Helper class for the IJ3D viewer, provides the TableCellView
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
+public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 
-	private NodeLogger logger = NodeLogger.getLogger(IJ3DTableCellView.class);
+	private NodeLogger logger = NodeLogger.getLogger(ImageJ3DTableCellView.class);
 
 	// Default rendering Type
 	private final int renderType = ContentConstants.VOLUME; // TODO
@@ -129,7 +129,7 @@ public class IJ3DTableCellView<T extends RealType<T>> implements TableCellView {
 		rootPanel = new JPanel(new BorderLayout());
 
 		// Menubar
-		IJ3DMenubar<T> ij3dbar = new IJ3DMenubar<T>(universe, this);
+		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
 		//add menubar and 3Duniverse to the panel
 
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
