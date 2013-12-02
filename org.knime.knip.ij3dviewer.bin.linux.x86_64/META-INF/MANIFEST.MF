@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Fiji 3D Viewer Libraries for Linux x86_64
 Bundle-SymbolicName: org.knime.knip.ij3dviewer.bin.linux.x86_64;singleton:=true
 Bundle-Version: 0.7.1.qualifier
-Fragment-Host: org.knime.knip.imagej2.core;bundle-version="0.7.1.qualifier"
+Fragment-Host: ij3d;bundle-version="0.7.1.qualifier"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86_64))
 Bundle-Vendor: University of Konstanz
