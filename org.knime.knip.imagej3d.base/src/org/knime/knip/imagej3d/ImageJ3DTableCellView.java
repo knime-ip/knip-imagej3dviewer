@@ -79,9 +79,11 @@ import view4d.TimelineGUI;
 /* Helper class for the IJ3D viewer, provides the TableCellView
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
-public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellView {
+public class ImageJ3DTableCellView<T extends RealType<T>> implements
+		TableCellView {
 
-	private NodeLogger logger = NodeLogger.getLogger(ImageJ3DTableCellView.class);
+	private NodeLogger logger = NodeLogger
+			.getLogger(ImageJ3DTableCellView.class);
 
 	// Default rendering Type
 	private final int renderType = ContentConstants.VOLUME; // TODO
@@ -99,11 +101,11 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 
 	private JPanel rootPanel;
 
-	//Stores the Image that the viewer displays
+	// Stores the Image that the viewer displays
 	private DataValue dataValue;
 
 	/**
-	 *
+	 * 
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -121,7 +123,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
-		//universe for rendering the image
+		// universe for rendering the image
 		universe = new Image3DUniverse();
 		timeline = universe.getTimeline();
 
@@ -130,7 +132,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 
 		// Menubar
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
-		//add menubar and 3Duniverse to the panel
+		// add menubar and 3Duniverse to the panel
 
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
@@ -141,7 +143,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 	/**
 	 * updates the Component, called whenever a new picture is selected, or view
 	 * is reset.
-	 * @param The ImgPlus that is to be displayed by the viewer.
+	 * 
+	 * @param The
+	 *            ImgPlus that is to be displayed by the viewer.
 	 */
 	@Override
 	public final void updateComponent(final DataValue valueToView) {
@@ -212,12 +216,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 
 	@Override
 	public final String getName() {
-		return "Java3D Viewer";
+		return "ImageJ 3D Viewer";
 	}
 
 	@Override
 	public final String getDescription() {
-		return " 3D viewer";
+		return "ImageJ 3D viewer";
 	};
 
 	@Override
