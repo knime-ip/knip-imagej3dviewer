@@ -288,6 +288,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		return help;
 	}
 
+	@SuppressWarnings("unused")
 	private JMenu createAttributesSubMenu() {
 		JMenu attributes = new JMenu("Attributes");
 
@@ -371,7 +372,8 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private void showColorDialog(final String title, final Color3f oldC,
-			final ColorListener colorListener, final boolean showDefaultCheckbox,
+			final ColorListener colorListener,
+			final boolean showDefaultCheckbox,
 			final boolean showTimepointsCheckbox) {
 		final GenericDialog gd = new GenericDialog(title, universe.getWindow());
 
