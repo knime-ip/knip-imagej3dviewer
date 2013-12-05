@@ -59,11 +59,13 @@ import java.awt.Component;
 
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
 import javax.swing.ToolTipManager;
 
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.FloatType;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
@@ -72,6 +74,7 @@ import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
+import org.knime.knip.imagej2.core.util.UntransformableIJTypeException;
 
 import view4d.Timeline;
 import view4d.TimelineGUI;
@@ -159,6 +162,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
 			return;
 		}
+		if (imgPlus.firstElement() instanceof FloatType) {
+			rootPanel.removeAll();
+			rootPanel.add(new JTextArea("Couldnt convert the picture, FloatType images are not supported!"));
+			logger.warn("Couldnt convert the picture, FloatType images are not supported.: " + imgPlus.getName());
+			return;
+		}
 		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
 
 		// validate if mapping can be inferred automatically
@@ -168,11 +177,23 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements TableCellVi
 				return;
 			}
 		}
-		// convert to IJ
+		// convert to I
+		try{
 		ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-
+		} catch(UntransformableIJTypeException e){
+			rootPanel.removeAll();
+			rootPanel.add(new JTextArea("Can't convert picture!"));
+			logger.warn("couldnt convert the picture: " + imgPlus.getName());
+			return;
+		}
+		try{
 		new StackConverter(ijImagePlus).convertToGray8();
-
+		} catch( java.lang.IllegalArgumentException e){
+			rootPanel.removeAll();
+			rootPanel.add(new JTextArea("Can't convert picture!"));
+			logger.warn("couldnt convert the picture: " + imgPlus.getName());
+			return;
+		}
 		switch (renderType) {
 		case ContentConstants.ORTHO:
 			c = universe.addOrthoslice(ijImagePlus);
