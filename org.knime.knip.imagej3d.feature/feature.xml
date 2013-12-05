@@ -2,7 +2,7 @@
 <feature
       id="org.knime.knip.imagej.feature"
       label="KNIME Image Processing  - ImageJ 3D Viewer Integration (Beta)"
-      version="0.7.6.qualifier"
+      version="0.8.0.qualifier"
       provider-name="KNIME / FIJI">
 
    <description>
