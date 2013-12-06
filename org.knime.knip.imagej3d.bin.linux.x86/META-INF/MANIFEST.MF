@@ -51,3 +51,4 @@ Bundle-NativeCode:
  lib/linux/x86/liblwjgl.so;
  osname=Linux;
  processor=x86
+ 
