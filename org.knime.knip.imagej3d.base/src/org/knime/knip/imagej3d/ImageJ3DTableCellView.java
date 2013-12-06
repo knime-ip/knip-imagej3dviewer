@@ -65,6 +65,8 @@ import javax.swing.ToolTipManager;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 
 import org.knime.core.data.DataValue;
@@ -102,13 +104,15 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	// Container for the converted picture,
 	private ImagePlus ijImagePlus;
 
+	// ui containers
 	private JPanel rootPanel;
+	private JTextArea errorPanel;
 
 	// Stores the Image that the viewer displays
 	private DataValue dataValue;
 
 	/**
-	 * 
+	 *
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -133,10 +137,15 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		// Container for the viewComponent
 		rootPanel = new JPanel(new BorderLayout());
 
+		// Panel for error messages
+		errorPanel = new JTextArea("");
+		errorPanel.setVisible(false);
+
 		// Menubar
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
 		// add menubar and 3Duniverse to the panel
 
+		// rootPanel.add(errorPanel);
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
@@ -146,7 +155,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	/**
 	 * updates the Component, called whenever a new picture is selected, or view
 	 * is reset.
-	 * 
+	 *
 	 * @param The
 	 *            ImgPlus that is to be displayed by the viewer.
 	 */
@@ -158,6 +167,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		dataValue = valueToView;
 
+		for (Component t : rootPanel.getComponents()) {
+			t.setVisible(true);
+		}
+		errorPanel.setVisible(false);
+		rootPanel.remove(errorPanel);
+
 		@SuppressWarnings("unchecked")
 		ImgPlus<T> imgPlus = ((ImgPlusValue<T>) valueToView).getImgPlus();
 
@@ -167,11 +182,20 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			return;
 		}
 		if (imgPlus.firstElement() instanceof FloatType) {
-			rootPanel.removeAll();
-			rootPanel.add(new JTextArea("Couldnt convert the picture, FloatType images are not supported!"));
-			logger.warn("Couldnt convert the picture, FloatType images are not supported.: " + imgPlus.getName());
+			unsurportedType("FloatType", imgPlus.getName());
 			return;
 		}
+		if (imgPlus.firstElement() instanceof UnsignedByteType) {
+			unsurportedType("UnsignedByteType", imgPlus.getName());
+			return;
+		}
+		if (imgPlus.firstElement() instanceof ShortType) {
+			unsurportedType("ShortType", imgPlus.getName());
+			return;
+		}
+
+
+
 		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
 
 		// validate if mapping can be inferred automatically
@@ -182,19 +206,28 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			}
 		}
 		// convert to I
-		try{
-		ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-		} catch(UntransformableIJTypeException e){
-			rootPanel.removeAll();
-			rootPanel.add(new JTextArea("Can't convert picture!"));
-			logger.warn("couldnt convert the picture: " + imgPlus.getName());
+		try {
+			ijImagePlus = Operations.compute(imgToIJ, imgPlus);
+		} catch (UntransformableIJTypeException e) {
+			for (Component t : rootPanel.getComponents()) {
+				t.setVisible(false);
+			}
+			errorPanel.setVisible(true);
+			rootPanel.add(errorPanel);
+			errorPanel.setText("Can't convert picture!");
+			logger.warn("Can't convert the picture: " + imgPlus.getName());
 			return;
 		}
-		try{
-		new StackConverter(ijImagePlus).convertToGray8();
-		} catch( java.lang.IllegalArgumentException e){
-			rootPanel.removeAll();
-			rootPanel.add(new JTextArea("Can't convert picture!"));
+		try {
+			new StackConverter(ijImagePlus).convertToGray8();
+		} catch (java.lang.IllegalArgumentException e) {
+			for (Component t : rootPanel.getComponents()) {
+				t.setVisible(false);
+			}
+			errorPanel.setVisible(true);
+			rootPanel.add(errorPanel);
+
+			errorPanel.setText("Can't convert picture!");
 			logger.warn("couldnt convert the picture: " + imgPlus.getName());
 			return;
 		}
@@ -229,6 +262,23 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			panel4D.setVisible(false);
 		}
 
+	}
+	/**
+	 * outputs an unsurportedType error message in the log and in the root panel
+	 * @param type and name of image
+	 */
+	private void unsurportedType(String type, String name){
+			for (Component t : rootPanel.getComponents()) {
+				t.setVisible(false);
+			}
+			rootPanel.add(errorPanel);
+			errorPanel.setVisible(true);
+
+			errorPanel
+					.setText("Couldnt convert the picture, " + type + " images are not supported!");
+			errorPanel.setVisible(true);
+			logger.warn("Couldnt convert the picture, " + type + " images are not supported.: "
+					+ name);
 	}
 
 	@Override
