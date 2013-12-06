@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.knime.knip.imagej.feature"
+      id="org.knime.knip.imagej3d.feature"
       label="KNIME Image Processing  - ImageJ 3D Viewer Integration (Beta)"
       version="0.8.0.qualifier"
       provider-name="KNIME / FIJI">
