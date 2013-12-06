@@ -62,12 +62,15 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.ToolTipManager;
 
+import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
+import net.imglib2.exception.IncompatibleTypeException;
+import net.imglib2.img.ImgView;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.real.unary.Convert;
+import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.ShortType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
-import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.type.numeric.integer.ByteType;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
@@ -112,7 +115,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	private DataValue dataValue;
 
 	/**
-	 *
+	 * 
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -155,10 +158,11 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	/**
 	 * updates the Component, called whenever a new picture is selected, or view
 	 * is reset.
-	 *
+	 * 
 	 * @param The
 	 *            ImgPlus that is to be displayed by the viewer.
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public final void updateComponent(final DataValue valueToView) {
 		// New image arrives
@@ -173,28 +177,45 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		errorPanel.setVisible(false);
 		rootPanel.remove(errorPanel);
 
-		@SuppressWarnings("unchecked")
-		ImgPlus<T> imgPlus = ((ImgPlusValue<T>) valueToView).getImgPlus();
+		ImgPlus<T> in = ((ImgPlusValue<T>) valueToView).getImgPlus();
 
 		// escapes
-		if (imgPlus.numDimensions() > 5) {
+		if (in.numDimensions() > 5) {
 			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
 			return;
 		}
-		if (imgPlus.firstElement() instanceof FloatType) {
-			unsurportedType("FloatType", imgPlus.getName());
-			return;
-		}
-		if (imgPlus.firstElement() instanceof UnsignedByteType) {
-			unsurportedType("UnsignedByteType", imgPlus.getName());
-			return;
-		}
-		if (imgPlus.firstElement() instanceof ShortType) {
-			unsurportedType("ShortType", imgPlus.getName());
-			return;
+
+		ImgPlus<ByteType> imgPlus = null;
+		final T firstElement = in.firstElement();
+		if (!(firstElement instanceof ByteType)) {
+			try {
+				ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
+						in, new Convert<T, ByteType>(firstElement,
+								new ByteType(), TypeConversionTypes.SCALE),
+						new ByteType());
+
+				imgPlus = new ImgPlus<ByteType>(new ImgView<ByteType>(
+						converted, in.factory().imgFactory(new ByteType())), in);
+
+			} catch (IncompatibleTypeException e) {
+				unsurportedType(firstElement.toString(), in.getName());
+			}
+		} else {
+			imgPlus = (ImgPlus<ByteType>) in;
 		}
 
-
+		// if (firstElement instanceof FloatType) {
+		// unsurportedType("FloatType", imgPlus.getName());
+		// return;
+		// }
+		// if (firstElement instanceof UnsignedByteType) {
+		// unsurportedType("UnsignedByteType", imgPlus.getName());
+		// return;
+		// }
+		// if (firstElement instanceof ShortType) {
+		// unsurportedType("ShortType", imgPlus.getName());
+		// return;
+		// }
 
 		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
 
@@ -263,22 +284,25 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 
 	}
+
 	/**
 	 * outputs an unsurportedType error message in the log and in the root panel
-	 * @param type and name of image
+	 * 
+	 * @param type
+	 *            and name of image
 	 */
-	private void unsurportedType(String type, String name){
-			for (Component t : rootPanel.getComponents()) {
-				t.setVisible(false);
-			}
-			rootPanel.add(errorPanel);
-			errorPanel.setVisible(true);
+	private void unsurportedType(String type, String name) {
+		for (Component t : rootPanel.getComponents()) {
+			t.setVisible(false);
+		}
+		rootPanel.add(errorPanel);
+		errorPanel.setVisible(true);
 
-			errorPanel
-					.setText("Couldnt convert the picture, " + type + " images are not supported!");
-			errorPanel.setVisible(true);
-			logger.warn("Couldnt convert the picture, " + type + " images are not supported.: "
-					+ name);
+		errorPanel.setText("Couldnt convert the picture, " + type
+				+ " images are not supported!");
+		errorPanel.setVisible(true);
+		logger.warn("Couldnt convert the picture, " + type
+				+ " images are not supported.: " + name);
 	}
 
 	@Override
@@ -306,5 +330,4 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@Override
 	public void onReset() {
 	}
-
 }
