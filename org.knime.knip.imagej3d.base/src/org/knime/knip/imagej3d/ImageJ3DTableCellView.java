@@ -72,7 +72,6 @@ import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.type.numeric.real.FloatType;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
@@ -190,28 +189,16 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			return;
 		}
 
-		ImgPlus<ByteType> imgPlus = null;
+		ImgPlus<T> imgPlus = null;
 		final T firstElement = in.firstElement();
 
 		// Convert to ByteType if needed.
-		if (!(firstElement instanceof ByteType)) {
-			try {
-				ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
-						in, new Convert<T, ByteType>(firstElement,
-								new ByteType(), TypeConversionTypes.SCALE),
-						new ByteType());
-
-				imgPlus = new ImgPlus<ByteType>(new ImgView<ByteType>(
-						converted, in.factory().imgFactory(new ByteType())), in);
-
-			} catch (IncompatibleTypeException e) {
-				unsurportedType(firstElement.toString(), in.getName());
-			}
-		} else {
-			imgPlus = (ImgPlus<ByteType>) in;
-		}
+//		} else {
+			imgPlus = (ImgPlus<T>) in;
+//		}
 
 		if (firstElement instanceof DoubleType) {
+			// TODO Add normalisation
 			unsurportedType("DoubleType", imgPlus.getName());
 			return;
 		}
@@ -230,15 +217,29 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		try {
 			ijImagePlus = Operations.compute(imgToIJ, imgPlus);
 		} catch (UntransformableIJTypeException e) {
-			for (Component t : rootPanel.getComponents()) {
-				t.setVisible(false);
+			try {
+				ImgPlus<ByteType> imgPlusConverted = null;
+				ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
+						in, new Convert<T, ByteType>(firstElement,
+								new ByteType(), TypeConversionTypes.SCALE),
+						new ByteType());
+
+				imgPlusConverted = new ImgPlus<ByteType>(new ImgView<ByteType>(
+						converted, in.factory().imgFactory(new ByteType())), in);
+			} catch (IncompatibleTypeException f) {
+				unsurportedType(firstElement.toString(), in.getName());
+
+				//hide UI
+				for (Component t : rootPanel.getComponents()) {
+					t.setVisible(false);
+				}
+
+				errorPanel.setVisible(true);
+				errorPanel.setText("Can't convert picture!");
+				logger.warn("Can't convert the picture to ijImagePlus: "
+						+ imgPlus.getName());
+				return;
 			}
-			errorPanel.setVisible(true);
-			// rootPanel.add(errorPanel);
-			errorPanel.setText("Can't convert picture!");
-			logger.warn("Can't convert the picture to ijImagePlus: "
-					+ imgPlus.getName());
-			return;
 		}
 		// convert into 8-Bit gray values image.
 		try {
@@ -248,7 +249,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				t.setVisible(false);
 			}
 			errorPanel.setVisible(true);
-			// rootPanel.add(errorPanel);
 
 			errorPanel.setText("Can't convert picture!");
 			logger.warn("Can't convert the picture to Gray8: "
@@ -304,7 +304,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		errorPanel.setVisible(true);
 
 		errorPanel.setText("Couldnt convert the picture, \n " + type
-				+ " images are not supported!");
+				+ " images are not supported! \n Try converting to any other Type e.g. ByteType");
 		errorPanel.setVisible(true);
 		logger.warn("Couldnt convert the picture, " + type
 				+ " images are not supported.: " + name);
