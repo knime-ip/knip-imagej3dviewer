@@ -71,6 +71,8 @@ import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
@@ -94,7 +96,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			.getLogger(ImageJ3DTableCellView.class);
 
 	// Default rendering Type
-	private final int renderType = ContentConstants.VOLUME; // TODO
+	private final int renderType = ContentConstants.VOLUME;
 
 	// 4D stuff
 	private Timeline timeline;
@@ -115,7 +117,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	private DataValue dataValue;
 
 	/**
-	 * 
+	 *
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -148,7 +150,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
 		// add menubar and 3Duniverse to the panel
 
-		// rootPanel.add(errorPanel);
+		rootPanel.add(errorPanel);
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
@@ -158,7 +160,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	/**
 	 * updates the Component, called whenever a new picture is selected, or view
 	 * is reset.
-	 * 
+	 *
 	 * @param The
 	 *            ImgPlus that is to be displayed by the viewer.
 	 */
@@ -171,15 +173,18 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		dataValue = valueToView;
 
+		// make sure everything is visible
 		for (Component t : rootPanel.getComponents()) {
 			t.setVisible(true);
 		}
+		// except the error panel
 		errorPanel.setVisible(false);
+		// in case it was added before
 		rootPanel.remove(errorPanel);
 
 		ImgPlus<T> in = ((ImgPlusValue<T>) valueToView).getImgPlus();
 
-		// escapes
+		// abort if input image has to many dimensions.
 		if (in.numDimensions() > 5) {
 			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
 			return;
@@ -187,6 +192,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		ImgPlus<ByteType> imgPlus = null;
 		final T firstElement = in.firstElement();
+
+		// Convert to ByteType if needed.
 		if (!(firstElement instanceof ByteType)) {
 			try {
 				ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
@@ -204,19 +211,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			imgPlus = (ImgPlus<ByteType>) in;
 		}
 
-		// if (firstElement instanceof FloatType) {
-		// unsurportedType("FloatType", imgPlus.getName());
-		// return;
-		// }
-		// if (firstElement instanceof UnsignedByteType) {
-		// unsurportedType("UnsignedByteType", imgPlus.getName());
-		// return;
-		// }
-		// if (firstElement instanceof ShortType) {
-		// unsurportedType("ShortType", imgPlus.getName());
-		// return;
-		// }
+		if (firstElement instanceof DoubleType) {
+			unsurportedType("DoubleType", imgPlus.getName());
+			return;
+		}
 
+		// initalize ImgToIJ converter.
 		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
 
 		// validate if mapping can be inferred automatically
@@ -226,7 +226,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				return;
 			}
 		}
-		// convert to I
+		// convert to ijImagePlus.
 		try {
 			ijImagePlus = Operations.compute(imgToIJ, imgPlus);
 		} catch (UntransformableIJTypeException e) {
@@ -234,11 +234,13 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				t.setVisible(false);
 			}
 			errorPanel.setVisible(true);
-			rootPanel.add(errorPanel);
+			// rootPanel.add(errorPanel);
 			errorPanel.setText("Can't convert picture!");
-			logger.warn("Can't convert the picture: " + imgPlus.getName());
+			logger.warn("Can't convert the picture to ijImagePlus: "
+					+ imgPlus.getName());
 			return;
 		}
+		// convert into 8-Bit gray values image.
 		try {
 			new StackConverter(ijImagePlus).convertToGray8();
 		} catch (java.lang.IllegalArgumentException e) {
@@ -246,12 +248,15 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				t.setVisible(false);
 			}
 			errorPanel.setVisible(true);
-			rootPanel.add(errorPanel);
+			// rootPanel.add(errorPanel);
 
 			errorPanel.setText("Can't convert picture!");
-			logger.warn("couldnt convert the picture: " + imgPlus.getName());
+			logger.warn("Can't convert the picture to Gray8: "
+					+ imgPlus.getName());
 			return;
 		}
+
+		// select the rendertype
 		switch (renderType) {
 		case ContentConstants.ORTHO:
 			c = universe.addOrthoslice(ijImagePlus);
@@ -287,7 +292,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	/**
 	 * outputs an unsurportedType error message in the log and in the root panel
-	 * 
+	 *
 	 * @param type
 	 *            and name of image
 	 */
@@ -298,7 +303,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		rootPanel.add(errorPanel);
 		errorPanel.setVisible(true);
 
-		errorPanel.setText("Couldnt convert the picture, " + type
+		errorPanel.setText("Couldnt convert the picture, \n " + type
 				+ " images are not supported!");
 		errorPanel.setVisible(true);
 		logger.warn("Couldnt convert the picture, " + type
