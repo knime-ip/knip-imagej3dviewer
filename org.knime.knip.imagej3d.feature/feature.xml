@@ -753,7 +753,7 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.knip.imagej3d.bin.macosx.x86_64"
-         os="linux"
+         os="macosx"
          arch="x86"
          download-size="0"
          install-size="0"
@@ -771,7 +771,7 @@ propagated with or for interoperation with KNIME.
 
    <plugin
          id="org.knime.knip.imagej3d.bin.windows.x86_64"
-          os="win32"
+         os="win32"
          arch="x86_64"
          download-size="0"
          install-size="0"

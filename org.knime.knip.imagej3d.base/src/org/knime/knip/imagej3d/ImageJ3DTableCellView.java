@@ -199,7 +199,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		if (firstElement instanceof DoubleType) {
 			// TODO Add normalisation
-			unsurportedType("DoubleType", imgPlus.getName());
+			showErrorPane("DoubleType images are not supported! \n convert to any different Type eg. ByteType", imgPlus.getName());
 			return;
 		}
 
@@ -209,7 +209,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		// validate if mapping can be inferred automatically
 		if (!imgToIJ.validateMapping(imgPlus)) {
 			if (!imgToIJ.inferMapping(imgPlus)) {
-				logger.warn("Warning: couldn't match dimensions of input picture");
+				showErrorPane("Warning: couldn't match dimensions of input picture", imgPlus.getName());
 				return;
 			}
 		}
@@ -228,19 +228,17 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						converted, in.factory().imgFactory(new ByteType())), in);
 				ijImagePlus = Operations.compute(imgToIJ, imgPlusConverted );
 			} catch (IncompatibleTypeException f) {
-				unsurportedType(firstElement.toString(), in.getName());
+				showErrorPane(firstElement.toString(), in.getName());
 				//hide UI
 				for (Component t : rootPanel.getComponents()) {
 					t.setVisible(false);
 				}
 
-				errorPanel.setVisible(true);
-				errorPanel.setText("Can't convert picture!");
-				logger.warn("Can't convert the picture to ijImagePlus: "
-						+ imgPlus.getName());
+				showErrorPane(" convert the picture to ijImagePlus", imgPlus.getName());
 				return;
 			}
 		}
+
 		// convert into 8-Bit gray values image.
 		try {
 			new StackConverter(ijImagePlus).convertToGray8();
@@ -291,23 +289,21 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	}
 
 	/**
-	 * outputs an unsurportedType error message in the log and in the root panel
+	 * outputs an error message in the log and in the root panel
 	 *
 	 * @param type
 	 *            and name of image
 	 */
-	private void unsurportedType(String type, String name) {
+	private void showErrorPane(String message, String name) {
 		for (Component t : rootPanel.getComponents()) {
 			t.setVisible(false);
 		}
 		rootPanel.add(errorPanel);
 		errorPanel.setVisible(true);
 
-		errorPanel.setText("Couldnt convert the picture, \n " + type
-				+ " images are not supported! \n Try converting to any other Type e.g. ByteType");
+		errorPanel.setText(message);
 		errorPanel.setVisible(true);
-		logger.warn("Couldnt convert the picture, " + type
-				+ " images are not supported.: " + name);
+		logger.warn("Error: "+ message + "in Picture " + name);
 	}
 
 	@Override
