@@ -226,9 +226,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 				imgPlusConverted = new ImgPlus<ByteType>(new ImgView<ByteType>(
 						converted, in.factory().imgFactory(new ByteType())), in);
+				ijImagePlus = Operations.compute(imgToIJ, imgPlusConverted );
 			} catch (IncompatibleTypeException f) {
 				unsurportedType(firstElement.toString(), in.getName());
-
 				//hide UI
 				for (Component t : rootPanel.getComponents()) {
 					t.setVisible(false);
