@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Java 3d Libraries for Windows x86
+Bundle-Name: ImageJ 3D Viewer Libraries for Linux x86
 Bundle-SymbolicName: org.knime.knip.imagej3d.bin.windows.x86
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: University of Konstanz
