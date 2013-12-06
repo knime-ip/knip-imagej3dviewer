@@ -5,14 +5,6 @@
       version="0.8.0.qualifier">
 
    <includes
-         id="org.knime.knip.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="org.knime.knip.imagej.feature"
-         version="0.0.0"/>
-
-   <includes
          id="org.knime.knip.imagej3d.feature"
          version="0.0.0"/>
 
