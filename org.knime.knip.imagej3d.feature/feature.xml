@@ -736,7 +736,7 @@ propagated with or for interoperation with KNIME.
    <plugin
          id="org.knime.knip.imagej3d.bin.linux.x86"
          os="linux"
-         arch="x86_64"
+         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
