@@ -176,8 +176,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		for (Component t : rootPanel.getComponents()) {
 			t.setVisible(true);
 		}
-		// except the error panel
-		errorPanel.setVisible(false);
 		// in case it was added before
 		rootPanel.remove(errorPanel);
 
@@ -193,13 +191,14 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		final T firstElement = in.firstElement();
 
 		// Convert to ByteType if needed.
-//		} else {
-			imgPlus = (ImgPlus<T>) in;
-//		}
+		imgPlus = (ImgPlus<T>) in;
 
+		// abort if unsuported type
 		if (firstElement instanceof DoubleType) {
 			// TODO Add normalisation
-			showErrorPane("DoubleType images are not supported! \n convert to any different Type eg. ByteType", imgPlus.getName());
+			showErrorPane(
+					"DoubleType images are not supported! \n convert to any different Type eg. ByteType",
+					imgPlus.getName());
 			return;
 		}
 
@@ -209,7 +208,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		// validate if mapping can be inferred automatically
 		if (!imgToIJ.validateMapping(imgPlus)) {
 			if (!imgToIJ.inferMapping(imgPlus)) {
-				showErrorPane("Warning: couldn't match dimensions of input picture", imgPlus.getName());
+				showErrorPane(
+						"Warning: couldn't match dimensions of input picture",
+						imgPlus.getName());
 				return;
 			}
 		}
@@ -218,6 +219,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			ijImagePlus = Operations.compute(imgToIJ, imgPlus);
 		} catch (UntransformableIJTypeException e) {
 			try {
+				// convert to ByteType if imgToIJ fails to convert, fixes most
+				// untransformable IJType errors.
 				ImgPlus<ByteType> imgPlusConverted = null;
 				ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
 						in, new Convert<T, ByteType>(firstElement,
@@ -226,15 +229,17 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 				imgPlusConverted = new ImgPlus<ByteType>(new ImgView<ByteType>(
 						converted, in.factory().imgFactory(new ByteType())), in);
-				ijImagePlus = Operations.compute(imgToIJ, imgPlusConverted );
+				// second attempt at imgToIJ conversion.
+				ijImagePlus = Operations.compute(imgToIJ, imgPlusConverted);
 			} catch (IncompatibleTypeException f) {
+				// failed to convert, showing error.
 				showErrorPane(firstElement.toString(), in.getName());
-				//hide UI
+				// hide UI
 				for (Component t : rootPanel.getComponents()) {
 					t.setVisible(false);
 				}
-
-				showErrorPane(" convert the picture to ijImagePlus", imgPlus.getName());
+				showErrorPane(" Can't convert the picture to ijImagePlus",
+						imgPlus.getName());
 				return;
 			}
 		}
@@ -303,11 +308,14 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		errorPanel.setText(message);
 		errorPanel.setVisible(true);
-		logger.warn("Error: "+ message + "in Picture " + name);
+		if (name != null) {
+			logger.warn("Error: " + message + "in Picture " + name);
+		}
 	}
 
 	@Override
 	public void onClose() {
+		universe.removeAllContents();
 	}
 
 	@Override
