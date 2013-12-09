@@ -181,9 +181,17 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		ImgPlus<T> in = ((ImgPlusValue<T>) valueToView).getImgPlus();
 
+		// abort if input image has to few dimensions.
+		if (in.numDimensions() < 3) {
+			showErrorPane("Only immages with a minimum of 3 Dimensions \n are supported by the 3D viewer", in.getName());
+			return;
+		}
+
+
+
 		// abort if input image has to many dimensions.
 		if (in.numDimensions() > 5) {
-			logger.warn("Error: only immages with up to 5 Dimensions are supported by the 3D viewer");
+			showErrorPane("Only immages with up to 5 Dimensions \n are supported by the 3D viewer", in.getName());
 			return;
 		}
 
