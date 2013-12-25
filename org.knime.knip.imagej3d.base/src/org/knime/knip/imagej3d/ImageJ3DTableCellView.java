@@ -57,7 +57,6 @@ import ij3d.Image3DUniverse;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -182,19 +181,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		universe.removeAllContents(); // cleanup universe
 
 		dataValue = valueToView;
+		showErrorPane("loading", null);
 
 		SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
 			@Override
 			protected ImgPlus<T> doInBackground() throws Exception {
-				// TODO Auto-generated method stub
-
-				// make sure everything is visible
-				for (Component t : rootPanel.getComponents()) {
-					t.setVisible(true);
-				}
-				// in case it was added before
-				rootPanel.remove(errorPanel);
 
 				ImgPlus<T> in = ((ImgPlusValue<T>) valueToView).getImgPlus();
 
@@ -230,7 +222,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				}
 
 				// initalize ImgToIJ converter.
-				ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
+				ImgToIJ imgToIJ = new ImgToIJ();
 
 				// validate if mapping can be inferred automatically
 				if (!imgToIJ.validateMapping(imgPlus)) {
@@ -315,15 +307,23 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 			@Override
 			protected void done() {
+				// make sure everything is visible
+				for (Component t : rootPanel.getComponents()) {
+					t.setVisible(true);
+				}
+				// in case it was added before
+				rootPanel.remove(errorPanel);
+
 				ImgPlus<T> imgPlus = null;
 				try {
 					imgPlus = get();
 				} catch (Exception e) {
 					e.printStackTrace();
+					return;
 				}
 
 				// enables the timeline gui if picture has 4 or 5 Dimensions
-				if (imgPlus.numDimensions() > 3) { // FIXME
+				if (imgPlus.numDimensions() > 3) {
 					timelineGUI = new TimelineGUI(timeline);
 					panel4D = timelineGUI.getPanel();
 					universe.setTimelineGui(timelineGUI);
