@@ -211,7 +211,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 
 		// initalize ImgToIJ converter.
-		ImgToIJ imgToIJ = new ImgToIJ(imgPlus.numDimensions());
+		ImgToIJ imgToIJ = new ImgToIJ();
 
 		// validate if mapping can be inferred automatically
 		if (!imgToIJ.validateMapping(imgPlus)) {
