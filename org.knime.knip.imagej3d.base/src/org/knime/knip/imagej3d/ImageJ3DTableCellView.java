@@ -374,7 +374,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@Override
 	public final String getDescription() {
 		return "ImageJ 3D viewer";
-	};
+	}
 
 	@Override
 	public void loadConfigurationFrom(final ConfigRO config) {
