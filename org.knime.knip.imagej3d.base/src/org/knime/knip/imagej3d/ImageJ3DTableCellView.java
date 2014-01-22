@@ -89,13 +89,13 @@ import view4d.TimelineGUI;
 
 /**
  * class that handles loading the image in the background
- *
+ * 
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 
 /*
  * Helper class for the IJ3D viewer, provides the TableCellView
- *
+ * 
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ImageJ3DTableCellView<T extends RealType<T>> implements
@@ -126,7 +126,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	private DataValue dataValue;
 
 	/**
-	 *
+	 * 
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -169,7 +169,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	/**
 	 * updates the Component, called whenever a new picture is selected, or view
 	 * is reset.
-	 *
+	 * 
 	 * @param The
 	 *            ImgPlus that is to be displayed by the viewer.
 	 */
@@ -343,7 +343,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	/**
 	 * outputs an error message in the log and in the root panel
-	 *
+	 * 
 	 * @param type
 	 *            and name of image
 	 */
