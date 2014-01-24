@@ -204,17 +204,18 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		menu.add(centerUniverse);
 		view.add(menu);
 
-		// fit view submenu
-		menu = new JMenu("Fit view to");
-		fitViewToUniverse = new JMenuItem("Universe");
-		fitViewToUniverse.addActionListener(this);
-		menu.add(fitViewToUniverse);
+		// // fit view submenu
+		// menu = new JMenu("Fit view to");
+		// fitViewToUniverse = new JMenuItem("Universe");
+		// fitViewToUniverse.addActionListener(this);
+		// menu.add(fitViewToUniverse);
+		//
+		// fitViewToContent = new JMenuItem("Selected content");
+		// fitViewToContent.addActionListener(this);
+		// menu.add(fitViewToContent);
+		// view.add(menu);
 
-		fitViewToContent = new JMenuItem("Selected content");
-		fitViewToContent.addActionListener(this);
-		menu.add(fitViewToContent);
-		view.add(menu);
-
+		// set View submenu
 		menu = new JMenu("Set view");
 		viewposXY = new JMenuItem("+ XY");
 		viewposXY.addActionListener(this);
