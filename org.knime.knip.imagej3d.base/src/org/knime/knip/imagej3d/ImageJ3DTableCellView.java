@@ -123,7 +123,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	private JTextArea errorPanel;
 
 	// Stores the Image that the viewer displays
-	private DataValue dataValue;
+	private static DataValue dataValue;
 
 	/**
 	 *
@@ -176,169 +176,174 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@SuppressWarnings("unchecked")
 	@Override
 	public final void updateComponent(final DataValue valueToView) {
-		// New image arrives
-		universe.resetView();
-		universe.removeAllContents(); // cleanup universe
 
-		dataValue = valueToView;
-		showErrorPane("loading", null);
+		if (dataValue == null || !(dataValue.equals(valueToView))) {
+			// New image arrives
+			universe.resetView();
+			universe.removeAllContents(); // cleanup universe
 
-		SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
+			dataValue = valueToView;
+			showErrorPane("loading", null);
 
-			@Override
-			protected ImgPlus<T> doInBackground() throws Exception {
+			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
-				ImgPlus<T> in = ((ImgPlusValue<T>) valueToView).getImgPlus();
+				@Override
+				protected ImgPlus<T> doInBackground() throws Exception {
 
-				// abort if input image has to few dimensions.
-				if (in.numDimensions() < 3) {
-					showErrorPane(
-							"Only immages with a minimum of 3 Dimensions \n are supported by the 3D viewer",
-							in.getName());
-					return null;
-				}
+					ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
+							.getImgPlus();
 
-				// abort if input image has to many dimensions.
-				if (in.numDimensions() > 5) {
-					showErrorPane(
-							"Only immages with up to 5 Dimensions \n are supported by the 3D viewer",
-							in.getName());
-					return null;
-				}
-
-				ImgPlus<T> imgPlus = null;
-				final T firstElement = in.firstElement();
-
-				// Convert to ByteType if needed.
-				imgPlus = (ImgPlus<T>) in;
-
-				// abort if unsuported type
-				if (firstElement instanceof DoubleType) {
-					// TODO Add normalisation
-					showErrorPane(
-							"DoubleType images are not supported! \n convert to any different Type eg. ByteType",
-							imgPlus.getName());
-					return null;
-				}
-
-				// initalize ImgToIJ converter.
-				ImgToIJ imgToIJ = new ImgToIJ();
-
-				// validate if mapping can be inferred automatically
-				if (!imgToIJ.validateMapping(imgPlus)) {
-					if (!imgToIJ.inferMapping(imgPlus)) {
+					// abort if input image has to few dimensions.
+					if (in.numDimensions() < 3) {
 						showErrorPane(
-								"Warning: couldn't match dimensions of input picture",
+								"Only immages with a minimum of 3 Dimensions \n are supported by the 3D viewer",
+								in.getName());
+						return null;
+					}
+
+					// abort if input image has to many dimensions.
+					if (in.numDimensions() > 5) {
+						showErrorPane(
+								"Only immages with up to 5 Dimensions \n are supported by the 3D viewer",
+								in.getName());
+						return null;
+					}
+
+					ImgPlus<T> imgPlus = null;
+					final T firstElement = in.firstElement();
+
+					// Convert to ByteType if needed.
+					imgPlus = (ImgPlus<T>) in;
+
+					// abort if unsuported type
+					if (firstElement instanceof DoubleType) {
+						// TODO Add normalisation
+						showErrorPane(
+								"DoubleType images are not supported! \n convert to any different Type eg. ByteType",
 								imgPlus.getName());
 						return null;
 					}
-				}
-				// convert to ijImagePlus.
-				try {
-					ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-				} catch (UntransformableIJTypeException f) {
-					try {
-						// convert to ByteType if imgToIJ fails to convert,
-						// fixes most
-						// untransformable IJType errors.
-						ImgPlus<ByteType> imgPlusConverted = null;
-						ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
-								in, new Convert<T, ByteType>(firstElement,
-										new ByteType(),
-										TypeConversionTypes.SCALE),
-								new ByteType());
 
-						imgPlusConverted = new ImgPlus<ByteType>(
-								new ImgView<ByteType>(converted, in.factory()
-										.imgFactory(new ByteType())), in);
-						// second attempt at imgToIJ conversion.
-						ijImagePlus = Operations.compute(imgToIJ,
-								imgPlusConverted);
-					} catch (IncompatibleTypeException f1) {
-						// failed to convert, showing error.
-						showErrorPane(firstElement.toString(), in.getName());
-						// hide UI
+					// initalize ImgToIJ converter.
+					ImgToIJ imgToIJ = new ImgToIJ();
+
+					// validate if mapping can be inferred automatically
+					if (!imgToIJ.validateMapping(imgPlus)) {
+						if (!imgToIJ.inferMapping(imgPlus)) {
+							showErrorPane(
+									"Warning: couldn't match dimensions of input picture",
+									imgPlus.getName());
+							return null;
+						}
+					}
+					// convert to ijImagePlus.
+					try {
+						ijImagePlus = Operations.compute(imgToIJ, imgPlus);
+					} catch (UntransformableIJTypeException f) {
+						try {
+							// convert to ByteType if imgToIJ fails to convert,
+							// fixes most
+							// untransformable IJType errors.
+							ImgPlus<ByteType> imgPlusConverted = null;
+							ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
+									in, new Convert<T, ByteType>(firstElement,
+											new ByteType(),
+											TypeConversionTypes.SCALE),
+									new ByteType());
+
+							imgPlusConverted = new ImgPlus<ByteType>(
+									new ImgView<ByteType>(converted, in
+											.factory().imgFactory(
+													new ByteType())), in);
+							// second attempt at imgToIJ conversion.
+							ijImagePlus = Operations.compute(imgToIJ,
+									imgPlusConverted);
+						} catch (IncompatibleTypeException f1) {
+							// failed to convert, showing error.
+							showErrorPane(firstElement.toString(), in.getName());
+							// hide UI
+							for (Component t : rootPanel.getComponents()) {
+								t.setVisible(false);
+							}
+							showErrorPane(
+									" Can't convert the picture to ijImagePlus",
+									imgPlus.getName());
+							return null;
+						}
+					}
+
+					// convert into 8-Bit gray values image.
+					try {
+						new StackConverter(ijImagePlus).convertToGray8();
+					} catch (java.lang.IllegalArgumentException e) {
 						for (Component t : rootPanel.getComponents()) {
 							t.setVisible(false);
 						}
-						showErrorPane(
-								" Can't convert the picture to ijImagePlus",
-								imgPlus.getName());
+						errorPanel.setVisible(true);
+
+						errorPanel.setText("Can't convert picture!");
+						logger.warn("Can't convert the picture to Gray8: "
+								+ imgPlus.getName());
 						return null;
 					}
-				}
 
-				// convert into 8-Bit gray values image.
-				try {
-					new StackConverter(ijImagePlus).convertToGray8();
-				} catch (java.lang.IllegalArgumentException e) {
-					for (Component t : rootPanel.getComponents()) {
-						t.setVisible(false);
+					// select the rendertype
+					switch (renderType) {
+					case ContentConstants.ORTHO:
+						c = universe.addOrthoslice(ijImagePlus);
+						break;
+					case ContentConstants.MULTIORTHO:
+						c = universe.addOrthoslice(ijImagePlus);
+						c.displayAs(ContentConstants.MULTIORTHO);
+					case ContentConstants.VOLUME:
+						c = universe.addVoltex(ijImagePlus);
+						break;
+					case ContentConstants.SURFACE:
+						c = universe.addMesh(ijImagePlus);
+						break;
+					case ContentConstants.SURFACE_PLOT2D:
+						c = universe.addSurfacePlot(ijImagePlus);
+						break;
 					}
-					errorPanel.setVisible(true);
-
-					errorPanel.setText("Can't convert picture!");
-					logger.warn("Can't convert the picture to Gray8: "
-							+ imgPlus.getName());
-					return null;
+					universe.updateTimeline();
+					return imgPlus;
 				}
 
-				// select the rendertype
-				switch (renderType) {
-				case ContentConstants.ORTHO:
-					c = universe.addOrthoslice(ijImagePlus);
-					break;
-				case ContentConstants.MULTIORTHO:
-					c = universe.addOrthoslice(ijImagePlus);
-					c.displayAs(ContentConstants.MULTIORTHO);
-				case ContentConstants.VOLUME:
-					c = universe.addVoltex(ijImagePlus);
-					break;
-				case ContentConstants.SURFACE:
-					c = universe.addMesh(ijImagePlus);
-					break;
-				case ContentConstants.SURFACE_PLOT2D:
-					c = universe.addSurfacePlot(ijImagePlus);
-					break;
-				}
-				universe.updateTimeline();
-				return imgPlus;
-			}
+				@Override
+				protected void done() {
+					// make sure everything is visible
+					for (Component t : rootPanel.getComponents()) {
+						t.setVisible(true);
+					}
+					// in case it was added before
+					rootPanel.remove(errorPanel);
 
-			@Override
-			protected void done() {
-				// make sure everything is visible
-				for (Component t : rootPanel.getComponents()) {
-					t.setVisible(true);
-				}
-				// in case it was added before
-				rootPanel.remove(errorPanel);
+					@SuppressWarnings("unused")
+					ImgPlus<T> imgPlus = null;
+					try {
+						imgPlus = get();
+					} catch (Exception e) {
+						e.printStackTrace();
+						return;
+					}
 
-				ImgPlus<T> imgPlus = null;
-				try {
-					imgPlus = get();
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
+					// enables the timeline gui if picture has 4 or 5 Dimensions
+					if (ijImagePlus.getNFrames() > 1) {
+						timelineGUI = new TimelineGUI(timeline);
+						panel4D = timelineGUI.getPanel();
+						universe.setTimelineGui(timelineGUI);
+
+						panel4D.setVisible(true);
+						rootPanel.add(panel4D, BorderLayout.SOUTH);
+					} else {
+						panel4D.setVisible(false);
+					}
 				}
 
-				// enables the timeline gui if picture has 4 or 5 Dimensions
-				if (ijImagePlus.getNFrames() > 1) {
-					timelineGUI = new TimelineGUI(timeline);
-					panel4D = timelineGUI.getPanel();
-					universe.setTimelineGui(timelineGUI);
+			};
 
-					panel4D.setVisible(true);
-					rootPanel.add(panel4D, BorderLayout.SOUTH);
-				} else {
-					panel4D.setVisible(false);
-				}
-			}
-
-		};
-
-		// TODO: until here in background task
-		worker.execute();
+			worker.execute();
+		}
 	}
 
 	/**
@@ -363,6 +368,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	@Override
 	public void onClose() {
+		dataValue = null;
 		universe.removeAllContents();
 	}
 

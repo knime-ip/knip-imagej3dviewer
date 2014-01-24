@@ -64,9 +64,16 @@ import org.knime.knip.base.nodes.view.TableCellViewFactory;
  */
 public class ImageJ3DViewer<T extends RealType<T>> implements TableCellViewFactory {
 
+	private static TableCellView[] view = null;
+
 	@Override
 	public final TableCellView[] createTableCellViews() {
-		return new TableCellView[] { new ImageJ3DTableCellView<T>() };
+		if (view == null){
+			view =  new TableCellView[] { new ImageJ3DTableCellView<T>() };
+			return view;
+		} else {
+			return view;
+		}
 	}
 
 	@Override
