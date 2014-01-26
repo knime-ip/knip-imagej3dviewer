@@ -511,7 +511,14 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
-					tableCellview.updateComponent(tableCellview.getDataValue());
+					// Fixes the rotation bug. Waiting after reseting the view
+					// results in a corect rotation.
+					executer.resetView();
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					universe.rotateToPositiveXY();
 				}
 			});
@@ -519,7 +526,12 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
-					tableCellview.updateComponent(tableCellview.getDataValue());
+					executer.resetView();
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					universe.rotateToPositiveXZ();
 				}
 			});
@@ -527,7 +539,12 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
-					tableCellview.updateComponent(tableCellview.getDataValue());
+					executer.resetView();
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					universe.rotateToPositiveYZ();
 				}
 			});
@@ -535,7 +552,12 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
-					tableCellview.updateComponent(tableCellview.getDataValue());
+					executer.resetView();
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					universe.rotateToNegativeXY();
 				}
 			});
@@ -543,7 +565,12 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
-					tableCellview.updateComponent(tableCellview.getDataValue());
+					executer.resetView();
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					universe.rotateToNegativeXZ();
 				}
 			});
@@ -551,7 +578,12 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.execute(new Runnable() {
 				@Override
 				public void run() {
-					tableCellview.updateComponent(tableCellview.getDataValue());
+					executer.resetView();
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					universe.rotateToNegativeYZ();
 				}
 			});
