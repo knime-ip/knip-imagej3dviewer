@@ -252,8 +252,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} catch (UntransformableIJTypeException f) {
 						try {
 							// convert to ByteType if imgToIJ fails to convert,
-							// fixes most
-							// untransformable IJType errors.
+							// fixes most untransformable IJType errors.
 							ImgPlus<ByteType> imgPlusConverted = null;
 							ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
 									in, new Convert<T, ByteType>(firstElement,
