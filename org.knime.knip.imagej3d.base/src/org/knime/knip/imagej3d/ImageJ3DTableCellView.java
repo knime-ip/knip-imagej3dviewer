@@ -152,14 +152,14 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		rootPanel = new JPanel(new BorderLayout());
 
 		// Panel for error messages
-		errorPanel = new JTextArea("");
-		errorPanel.setVisible(false);
+		errorLabel = new JTextArea();
+		errorLabel.setVisible(false);
 
 		// Menubar
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
 		// add menubar and 3Duniverse to the panel
 
-		rootPanel.add(errorPanel);
+		rootPanel.add(errorLabel,BorderLayout.CENTER);
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
@@ -193,7 +193,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			universe.removeAllContents(); // cleanup universe
 
 			dataValue = valueToView;
-			showErrorPane("loading", null);
+			rootPanelBackup = rootPanel;
+			showErrorPanel("loading", null);
 
 			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
@@ -205,7 +206,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 					// abort if input image has to few dimensions.
 					if (in.numDimensions() < 3) {
-						showErrorPane(
+						showErrorPanel(
 								"Only immages with a minimum of 3 Dimensions \n are supported by the 3D viewer",
 								in.getName());
 						return null;
@@ -213,7 +214,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 					// abort if input image has to many dimensions.
 					if (in.numDimensions() > 5) {
-						showErrorPane(
+						showErrorPanel(
 								"Only immages with up to 5 Dimensions \n are supported by the 3D viewer",
 								in.getName());
 						return null;
@@ -228,7 +229,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					// abort if unsuported type
 					if (firstElement instanceof DoubleType) {
 						// TODO Add normalisation
-						showErrorPane(
+						showErrorPanel(
 								"DoubleType images are not supported! \n convert to any different Type eg. ByteType",
 								imgPlus.getName());
 						return null;
@@ -240,7 +241,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					// validate if mapping can be inferred automatically
 					if (!imgToIJ.validateMapping(imgPlus)) {
 						if (!imgToIJ.inferMapping(imgPlus)) {
-							showErrorPane(
+							showErrorPanel(
 									"Warning: couldn't match dimensions of input picture",
 									imgPlus.getName());
 							return null;
@@ -269,12 +270,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 									imgPlusConverted);
 						} catch (IncompatibleTypeException f1) {
 							// failed to convert, showing error.
-							showErrorPane(firstElement.toString(), in.getName());
+							showErrorPanel(firstElement.toString(), in.getName());
 							// hide UI
 							for (Component t : rootPanel.getComponents()) {
 								t.setVisible(false);
 							}
-							showErrorPane(
+							showErrorPanel(
 									" Can't convert the picture to ijImagePlus",
 									imgPlus.getName());
 							return null;
@@ -288,11 +289,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						for (Component t : rootPanel.getComponents()) {
 							t.setVisible(false);
 						}
-						errorPanel.setVisible(true);
-
-						errorPanel.setText("Can't convert picture!");
-						logger.warn("Can't convert the picture to Gray8: "
-								+ imgPlus.getName());
+						showErrorPanel(
+								" Can't convert the picture to ijImagePlus",
+								imgPlus.getName());
 						return null;
 					}
 
@@ -362,6 +361,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	 *            and name of image
 	 */
 	private void showErrorPane(String message, String name) {
+	private void showErrorPanel(String message, String name) {
 		for (Component t : rootPanel.getComponents()) {
 			t.setVisible(false);
 		}
