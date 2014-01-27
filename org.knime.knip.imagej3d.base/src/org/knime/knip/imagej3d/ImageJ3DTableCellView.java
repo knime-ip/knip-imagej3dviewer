@@ -152,14 +152,14 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		rootPanel = new JPanel(new BorderLayout());
 
 		// Panel for error messages
-		errorLabel = new JTextArea();
-		errorLabel.setVisible(false);
+		errorPanel = new JTextArea();
+		errorPanel.setVisible(false);
 
 		// Menubar
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
 		// add menubar and 3Duniverse to the panel
 
-		rootPanel.add(errorLabel,BorderLayout.CENTER);
+		rootPanel.add(errorPanel,BorderLayout.CENTER);
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
 		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
@@ -193,7 +193,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			universe.removeAllContents(); // cleanup universe
 
 			dataValue = valueToView;
-			rootPanelBackup = rootPanel;
 			showErrorPanel("loading", null);
 
 			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
@@ -269,12 +268,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 							ijImagePlus = Operations.compute(imgToIJ,
 									imgPlusConverted);
 						} catch (IncompatibleTypeException f1) {
-							// failed to convert, showing error.
-							showErrorPanel(firstElement.toString(), in.getName());
-							// hide UI
-							for (Component t : rootPanel.getComponents()) {
-								t.setVisible(false);
-							}
+
 							showErrorPanel(
 									" Can't convert the picture to ijImagePlus",
 									imgPlus.getName());
@@ -286,9 +280,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					try {
 						new StackConverter(ijImagePlus).convertToGray8();
 					} catch (java.lang.IllegalArgumentException e) {
-						for (Component t : rootPanel.getComponents()) {
-							t.setVisible(false);
-						}
 						showErrorPanel(
 								" Can't convert the picture to ijImagePlus",
 								imgPlus.getName());
@@ -360,7 +351,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	 * @param type
 	 *            and name of image
 	 */
-	private void showErrorPane(String message, String name) {
 	private void showErrorPanel(String message, String name) {
 		for (Component t : rootPanel.getComponents()) {
 			t.setVisible(false);
