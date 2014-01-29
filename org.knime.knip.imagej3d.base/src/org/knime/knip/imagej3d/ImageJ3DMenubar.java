@@ -30,7 +30,12 @@ import javax.swing.SwingUtilities;
 import javax.vecmath.Color3f;
 
 import net.imglib2.type.numeric.RealType;
-
+/**
+ * Provides the menubar for the ImageJ3DViewer
+ * @author Gabriel
+ *
+ * @param <T>
+ */
 @SuppressWarnings("serial")
 public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		ActionListener, ItemListener, UniverseListener {

@@ -68,8 +68,8 @@ public class ImageJ3DViewer<T extends RealType<T>> implements TableCellViewFacto
 
 	@Override
 	public final TableCellView[] createTableCellViews() {
-		if (view == null){
-			view =  new TableCellView[] { new ImageJ3DTableCellView<T>() };
+		if (view == null) {
+			view =  new TableCellView[] {new ImageJ3DTableCellView<T>() };
 			return view;
 		} else {
 			return view;
