@@ -417,7 +417,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 			// Title Warning
 			g.setColor(new Color(255, 255, 255));
-			g.setFont(new Font("TimesRoman", Font.BOLD, 50));
+			g.setFont(new Font("Helvetica", Font.BOLD, 50));
 			g.drawString("ERROR", 10, 130);
 
 			// Error message
