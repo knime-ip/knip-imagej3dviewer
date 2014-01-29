@@ -91,6 +91,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
 import org.knime.knip.imagej2.core.util.UntransformableIJTypeException;
+import org.knime.knip.imagej3d.libs.WaitIndicator;
 
 import view4d.Timeline;
 import view4d.TimelineGUI;
