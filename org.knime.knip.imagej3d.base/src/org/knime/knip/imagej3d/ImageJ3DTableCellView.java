@@ -56,8 +56,16 @@ import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
@@ -114,6 +122,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	// rendering Universe
 	private Image3DUniverse universe;
+	private Component universePanel;
 
 	// Container for the converted picture,
 	private ImagePlus ijImagePlus;
@@ -157,22 +166,23 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		// Menubar
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(universe, this);
-		// add menubar and 3Duniverse to the panel
 
-		rootPanel.add(errorPanel,BorderLayout.CENTER);
+		// add menubar and 3Duniverse to the panel
 		rootPanel.add(ij3dbar, BorderLayout.NORTH);
-		rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
+		// rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
 		return rootPanel;
 	}
 
 	/**
 	 * flushes the cache and updates the Component
+	 *
 	 * @param The
 	 *            ImgPlus that is to be displayed by the viewer.
 	 */
-	 	protected final void fullReload(final DataValue valueToView) {
+	protected final void fullReload(final DataValue valueToView) {
 		dataValue = null;
+		rootPanel.remove(universePanel);
 		updateComponent(valueToView);
 	}
 
@@ -193,7 +203,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			universe.removeAllContents(); // cleanup universe
 
 			dataValue = valueToView;
-			showErrorPanel("loading", null);
+
+			showError(rootPanel, null, false);
+			setWaiting(rootPanel, true);
 
 			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
@@ -205,17 +217,19 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 					// abort if input image has to few dimensions.
 					if (in.numDimensions() < 3) {
-						showErrorPanel(
-								"Only immages with a minimum of 3 Dimensions \n are supported by the 3D viewer",
-								in.getName());
+						showError(
+								rootPanel,
+								new String[] {"Only immages with a minimum of 3 Dimensions","are supported by the 3D viewer"},
+								true);
 						return null;
 					}
 
 					// abort if input image has to many dimensions.
 					if (in.numDimensions() > 5) {
-						showErrorPanel(
-								"Only immages with up to 5 Dimensions \n are supported by the 3D viewer",
-								in.getName());
+						showError(
+								rootPanel,
+								new String[] {"Only immages with up to 5 Dimensions", "are supported by the 3D viewer"},
+								true);
 						return null;
 					}
 
@@ -228,9 +242,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					// abort if unsuported type
 					if (firstElement instanceof DoubleType) {
 						// TODO Add normalisation
-						showErrorPanel(
-								"DoubleType images are not supported! \n convert to any different Type eg. ByteType",
-								imgPlus.getName());
+						showError(
+								rootPanel,
+								new String[] {"DoubleType images are not supported!","convert to any different Type eg. ByteType"},
+								true);
 						return null;
 					}
 
@@ -240,9 +255,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					// validate if mapping can be inferred automatically
 					if (!imgToIJ.validateMapping(imgPlus)) {
 						if (!imgToIJ.inferMapping(imgPlus)) {
-							showErrorPanel(
-									"Warning: couldn't match dimensions of input picture",
-									imgPlus.getName());
+							showError(
+									rootPanel,
+									new String[] {"Warning: couldn't match dimensions of input picture"},
+									true);
 							return null;
 						}
 					}
@@ -269,9 +285,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 									imgPlusConverted);
 						} catch (IncompatibleTypeException f1) {
 
-							showErrorPanel(
-									" Can't convert the picture to ijImagePlus",
-									imgPlus.getName());
+							showError(
+									rootPanel,
+									new String[] {" Can't convert the picture to ijImagePlus"},
+									true);
 							return null;
 						}
 					}
@@ -280,9 +297,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					try {
 						new StackConverter(ijImagePlus).convertToGray8();
 					} catch (java.lang.IllegalArgumentException e) {
-						showErrorPanel(
-								" Can't convert the picture to ijImagePlus",
-								imgPlus.getName());
+						showError(rootPanel,
+								new String[] {"Can't convert the picture to ijImagePlus"},
+								true);
 						return null;
 					}
 
@@ -310,14 +327,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 				@Override
 				protected void done() {
-					// make sure everything is visible
-					for (Component t : rootPanel.getComponents()) {
-						t.setVisible(true);
-					}
-					// in case it was added before
-					rootPanel.remove(errorPanel);
 
-					@SuppressWarnings("unused")
 					ImgPlus<T> imgPlus = null;
 					try {
 						imgPlus = get();
@@ -325,6 +335,15 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						e.printStackTrace();
 						return;
 					}
+
+					// Error happend during rendering
+					if (imgPlus == null) {
+						return;
+					}
+
+					//
+					universePanel = universe.getCanvas(0);
+					rootPanel.add(universePanel, BorderLayout.CENTER);
 
 					// enables the timeline gui if picture has 4 or 5 Dimensions
 					if (ijImagePlus.getNFrames() > 1) {
@@ -337,6 +356,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} else {
 						panel4D.setVisible(false);
 					}
+					setWaiting(rootPanel, false);
 				}
 
 			};
@@ -345,24 +365,102 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 	}
 
-	/**
-	 * outputs an error message in the log and in the root panel
-	 *
-	 * @param type
-	 *            and name of image
-	 */
-	private void showErrorPanel(String message, String name) {
-		for (Component t : rootPanel.getComponents()) {
-			t.setVisible(false);
+	private class ImageJ3DWaitIndicator extends WaitIndicator {
+		public ImageJ3DWaitIndicator(JComponent target) {
+			super(target);
 		}
-		rootPanel.add(errorPanel);
-		errorPanel.setVisible(true);
 
-		errorPanel.setText(message);
-		errorPanel.setVisible(true);
-		if (name != null) {
-			logger.warn("Error: " + message + "in Picture " + name);
+		@Override
+		public void paint(Graphics g) {
+			Color c = new Color(103, 117, 219, 255);
+			Rectangle r = getDecorationBounds();
+			g = g.create();
+			g.setColor(c);
+			g.fillRect(r.x, r.y, r.width, r.height);
+			g.setColor(new Color(255, 255, 255));
+			g.setFont(new Font("Helvetica", Font.BOLD, 50));
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g.drawString("loading....", 10, 200);
+			repaint();
+			g.dispose();
+
 		}
+	}
+
+	private class ImageJ3DErrorIndicator extends WaitIndicator {
+
+		private String[] errorText = { "Error" };
+
+		public ImageJ3DErrorIndicator(JComponent target, String[] errorText) {
+			super(target);
+			getPainter().setCursor(
+					Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			this.errorText = errorText;
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			Color c = new Color(200, 20, 30, 255);
+			Rectangle r = getDecorationBounds();
+			g = g.create();
+			g.setColor(c);
+			g.fillRect(r.x, r.y, r.width, r.height);
+			if (errorText == null) {
+				errorText = new String[] { "unknown Error!" };
+			}
+
+			((Graphics2D) g).setRenderingHint(
+					RenderingHints.KEY_TEXT_ANTIALIASING,
+					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+			//Title Warning
+			g.setColor(new Color(255, 255, 255));
+			g.setFont(new Font("TimesRoman", Font.BOLD, 50));
+			g.drawString("ERROR", 10, 130);
+
+			//Error message
+			g.setFont(new Font("TimesRoman", Font.BOLD, 14));
+			int newline = g.getFontMetrics().getHeight() + 5;
+			int y = 200;
+			for (int i = 0; i < errorText.length; i++) {
+				g.drawString(errorText[i], 10, y += newline);
+			}
+			g.dispose();
+
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void setWaiting(JComponent c, boolean on) {
+		ImageJ3DWaitIndicator w = (ImageJ3DWaitIndicator) c
+				.getClientProperty("waiter");
+		if (w == null) {
+			if (on) {
+				w = new ImageJ3DWaitIndicator(c);
+			}
+		} else if (!on) {
+			w.dispose();
+			w = null;
+		}
+		c.putClientProperty("waiter", w);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void showError(JComponent c, String[] message, boolean on) {
+		ImageJ3DErrorIndicator w = (ImageJ3DErrorIndicator) c
+				.getClientProperty("error");
+		if (w == null) {
+			if (on) {
+				logger.warn(message[0]);
+				w = new ImageJ3DErrorIndicator(c, message);
+			}
+		} else if (!on) {
+			w.dispose();
+			w = null;
+		}
+		c.putClientProperty("error", w);
 	}
 
 	@Override
@@ -392,4 +490,5 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@Override
 	public void onReset() {
 	}
+
 }
