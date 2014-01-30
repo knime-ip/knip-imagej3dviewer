@@ -130,10 +130,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	// ui containers
 	private JPanel m_rootPanel;
-	private JTextArea m_errorPanel;
 
 	// Stores the Image that the viewer displays
-	private static DataValue dataValue;
+	private  DataValue m_dataValue;
 
 	/**
 	 *
@@ -141,7 +140,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	 */
 
 	public final DataValue getDataValue() {
-		return dataValue;
+		return m_dataValue;
 	}
 
 	// Container for picture
@@ -161,16 +160,11 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		// Container for the viewComponent
 		m_rootPanel = new JPanel(new BorderLayout());
 
-		// Panel for error messages
-		m_errorPanel = new JTextArea();
-		m_errorPanel.setVisible(false);
-
 		// Menubar
 		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
 
 		// add menubar and 3Duniverse to the panel
 		m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
-		// rootPanel.add(universe.getCanvas(0), BorderLayout.CENTER);
 
 		return m_rootPanel;
 	}
@@ -198,12 +192,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@Override
 	public final void updateComponent(final DataValue valueToView) {
 
-		if (dataValue == null || !(dataValue.equals(valueToView))) {
+		if (m_dataValue == null || !(m_dataValue.equals(valueToView))) {
 			// New image arrives
 			m_universe.resetView();
 			m_universe.removeAllContents(); // cleanup universe
 
-			dataValue = valueToView;
+			m_dataValue = valueToView;
 
 			showError(m_rootPanel, null, false);
 			setWaiting(m_rootPanel, true);
@@ -465,7 +459,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	@Override
 	public final void onClose() {
-		dataValue = null;
+		m_dataValue = null;
 		m_universe.removeAllContents();
 	}
 
