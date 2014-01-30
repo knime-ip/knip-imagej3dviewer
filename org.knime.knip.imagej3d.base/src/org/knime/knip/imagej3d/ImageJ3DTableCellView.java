@@ -169,6 +169,17 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		return m_rootPanel;
 	}
 
+	/**
+	 * flushes the cache and updates the Component.
+	 *
+	 * @param valueToView
+	 *            TheImgPlus that is to be displayed by the viewer.
+	 */
+	protected final void fullReload(final DataValue valueToView) {
+		dataValue = null;
+		m_rootPanel.remove(m_universePanel);
+		updateComponent(valueToView);
+	}
 
 	/**
 	 * updates the Component, called whenever a new picture is selected,

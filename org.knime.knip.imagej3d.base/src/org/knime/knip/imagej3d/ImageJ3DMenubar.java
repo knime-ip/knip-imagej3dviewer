@@ -75,6 +75,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	private JMenuItem properties;
 	private JMenuItem resetTransform;
 	private JMenuItem resetView;
+	private JMenuItem reloadImage;
 	private JMenuItem saveTransform;
 	private JMenuItem scalebar;
 	private JMenuItem setTransform;
@@ -196,6 +197,10 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		resetView = new JMenuItem("Reset view");
 		resetView.addActionListener(this);
 		view.add(resetView);
+
+		reloadImage = new JMenuItem("Reload Image");
+		reloadImage.addActionListener(this);
+		view.add(reloadImage);
 
 		// center submenu
 		JMenu menu = new JMenu("Center");
@@ -454,6 +459,8 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			executer.changeTransparency(getSelected());
 		} else if (src == resetView) {
 			executer.resetView();
+		} else if (src == reloadImage) {
+			tableCellview.fullReload(tableCellview.getDataValue());
 		} else if (src == centerOrigin) {
 			executer.centerOrigin();
 		} else if (src == centerUniverse) {
