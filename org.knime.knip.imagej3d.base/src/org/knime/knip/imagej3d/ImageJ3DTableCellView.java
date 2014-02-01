@@ -68,7 +68,6 @@ import java.awt.RenderingHints;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
@@ -91,6 +90,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
 import org.knime.knip.imagej2.core.util.UntransformableIJTypeException;
+import org.knime.knip.imagej3d.libs.SpinningDialWaitIndicator;
 import org.knime.knip.imagej3d.libs.WaitIndicator;
 
 import view4d.Timeline;
@@ -176,7 +176,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	 *            TheImgPlus that is to be displayed by the viewer.
 	 */
 	protected final void fullReload(final DataValue valueToView) {
-		dataValue = null;
+		m_dataValue = null;
 		m_rootPanel.remove(m_universePanel);
 		updateComponent(valueToView);
 	}
@@ -426,13 +426,14 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 	}
 
+
 	@SuppressWarnings("unchecked")
 	private void setWaiting(final JComponent jc, final boolean on) {
-		ImageJ3DWaitIndicator w = (ImageJ3DWaitIndicator) jc
+		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
 				.getClientProperty("waiter");
 		if (w == null) {
 			if (on) {
-				w = new ImageJ3DWaitIndicator(jc);
+				w = new SpinningDialWaitIndicator(jc);
 			}
 		} else if (!on) {
 			w.dispose();
@@ -440,6 +441,21 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 		jc.putClientProperty("waiter", w);
 	}
+
+//	@SuppressWarnings("unchecked")
+//	private void setWaiting(final JComponent jc, final boolean on) {
+//		ImageJ3DWaitIndicator w = (ImageJ3DWaitIndicator) jc
+//				.getClientProperty("waiter");
+//		if (w == null) {
+//			if (on) {
+//				w = new ImageJ3DWaitIndicator(jc);
+//			}
+//		} else if (!on) {
+//			w.dispose();
+//			w = null;
+//		}
+//		jc.putClientProperty("waiter", w);
+//	}
 
 	@SuppressWarnings("unchecked")
 	private void showError(final JComponent jc, final String[] message, final boolean on) {
