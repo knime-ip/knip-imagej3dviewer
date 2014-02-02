@@ -2,11 +2,10 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry excluding="org/knime/knip/imagej3d/libs/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/ij3d_knip_build.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/j3dcore.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/j3dutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/vecmath.jar"/>
-	<classpathentry kind="lib" path="lib/ij3d_knip_LoadingIndicator.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
