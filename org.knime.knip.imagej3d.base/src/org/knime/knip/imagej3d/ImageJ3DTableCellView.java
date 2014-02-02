@@ -55,6 +55,8 @@ import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
 
+import java.awt.AWTEvent;
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -62,8 +64,13 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -182,8 +189,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	}
 
 	/**
-	 * updates the Component, called whenever a new picture is selected,
-	 * or the view is reset.
+	 * updates the Component, called whenever a new picture is selected, or the
+	 * view is reset.
 	 *
 	 * @param valueToView
 	 * The ImgPlus that is to be displayed by the viewer.
@@ -353,6 +360,22 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						m_panel4D.setVisible(false);
 					}
 					setWaiting(m_rootPanel, false);
+
+
+					//Dirty Hack, simulates mouseclick on the component to force rendering.
+					Robot robbie;
+					try {
+						robbie = new Robot();
+						Point m = MouseInfo.getPointerInfo().getLocation();
+						Point p = m_rootPanel.getLocationOnScreen();
+						robbie.mouseMove(p.x+2, p.y+30);
+						robbie.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+						robbie.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+						robbie.delay(15);
+						robbie.mouseMove(m.x, m.y);
+
+					} catch (AWTException e) {
+					}
 				}
 
 			};
@@ -388,7 +411,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		private String[] m_errorText = {"Error"};
 
-		public ImageJ3DErrorIndicator(final JComponent target, final String[] message) {
+		public ImageJ3DErrorIndicator(final JComponent target,
+				final String[] message) {
 			super(target);
 			getPainter().setCursor(
 					Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -426,7 +450,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 	}
 
-
 	@SuppressWarnings("unchecked")
 	private void setWaiting(final JComponent jc, final boolean on) {
 		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
@@ -458,7 +481,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 //	}
 
 	@SuppressWarnings("unchecked")
-	private void showError(final JComponent jc, final String[] message, final boolean on) {
+	private void showError(final JComponent jc, final String[] message,
+			final boolean on) {
 		ImageJ3DErrorIndicator w = (ImageJ3DErrorIndicator) jc
 				.getClientProperty("error");
 		if (w == null) {
