@@ -56,7 +56,7 @@ import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.base.nodes.view.TableCellViewFactory;
 
 /**
- * Displays a 3D/4D/5D Picture.
+ * Displays a 3D/4D/5D Image.
  *
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  *

@@ -22,8 +22,6 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 /** Provides a spinning disk of hash marks. */
 public class SpinningDial extends AbstractAnimatedIcon {

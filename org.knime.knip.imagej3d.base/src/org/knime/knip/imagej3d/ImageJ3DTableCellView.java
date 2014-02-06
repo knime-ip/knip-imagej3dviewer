@@ -103,13 +103,7 @@ import view4d.Timeline;
 import view4d.TimelineGUI;
 
 /**
- * class that handles loading the image in the background
- *
- * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
- */
-
-/**
- * Helper class for the IJ3D viewer, provides the TableCellView.
+ * Helper class for the ImageJ 3D Viewer, which provides the TableCellView.
  * 
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
@@ -221,17 +215,20 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 					// abort if input image has to few dimensions.
 					if (in.numDimensions() < 3) {
-						showError(m_rootPanel, new String[] {
-								"Only images with a minimum of 3 Dimensions",
-								"are supported by the 3D viewer" }, true);
+						showError(
+								m_rootPanel,
+								new String[] {
+										"Only images with a minimum of three dimensions",
+										" are supported by the ImageJ 3D Viewer." },
+								true);
 						return null;
 					}
 
 					// abort if input image has to many dimensions.
 					if (in.numDimensions() > 5) {
 						showError(m_rootPanel, new String[] {
-								"Only images with up to 5 Dimensions",
-								"are supported by the 3D viewer" }, true);
+								"Only images with up to five dimensions",
+								"are supported by the 3D Viewer." }, true);
 						return null;
 					}
 
@@ -244,9 +241,11 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					// abort if unsuported type
 					if (firstElement instanceof DoubleType) {
 						// TODO Add normalisation
-						showError(m_rootPanel, new String[] {
-								"DoubleType images are not supported!",
-								"convert to any different Type eg. ByteType" },
+						showError(
+								m_rootPanel,
+								new String[] {
+										"DoubleType images are not supported!",
+										" You have to convert your image to e.g. ByteType using the converter." },
 								true);
 						return null;
 					}
@@ -259,7 +258,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						if (!imgToIJ.inferMapping(imgPlus)) {
 							showError(
 									m_rootPanel,
-									new String[] { "Warning: couldn't match dimensions of input picture" },
+									new String[] { "Warning: Couldn't match dimensions of input image." },
 									true);
 							return null;
 						}
@@ -290,7 +289,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 							showError(
 									m_rootPanel,
-									new String[] { " Can't convert the picture to ijImagePlus" },
+									new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
 									true);
 							return null;
 						}
@@ -302,7 +301,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} catch (java.lang.IllegalArgumentException e) {
 						showError(
 								m_rootPanel,
-								new String[] { "Can't convert the picture to ijImagePlus" },
+								new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
 								true);
 						return null;
 					}
@@ -359,7 +358,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 								.equals("adding a container to a container on a different GraphicsDevice")) {
 							m_rootPanel
 									.add(new JLabel(
-											"Opening the 3D view on different monitors doesn't work so far, sorry. We are working on it ..."));
+											"Opening the ImageJ 3D Viewer on different monitors doesn't work so far, sorry. We are working on it ...!"));
 						} else {
 							throw e;
 						}
@@ -402,29 +401,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 	}
 
-	private class ImageJ3DWaitIndicator extends WaitIndicator {
-		public ImageJ3DWaitIndicator(final JComponent target) {
-			super(target);
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			Rectangle r = getDecorationBounds();
-			g = g.create();
-			g.setColor(new Color(103, 117, 219, 255));
-			g.fillRect(r.x, r.y, r.width, r.height);
-			g.setColor(new Color(255, 255, 255));
-			g.setFont(new Font("Helvetica", Font.BOLD, 50));
-			((Graphics2D) g).setRenderingHint(
-					RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			g.drawString("loading....", 10, 200);
-			repaint();
-			g.dispose();
-
-		}
-	}
-
 	private class ImageJ3DErrorIndicator extends WaitIndicator {
 
 		private String[] m_errorText = { "Error" };
@@ -441,7 +417,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		public void paint(Graphics g) {
 			Rectangle r = getDecorationBounds();
 			g = g.create();
-			g.setColor(new Color(103, 117, 219, 255));
+			g.setColor(new Color(211, 211, 211, 255));
 			g.fillRect(r.x, r.y, r.width, r.height);
 			if (m_errorText == null) {
 				m_errorText = new String[] { "unknown Error!" };
@@ -468,7 +444,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void setWaiting(final JComponent jc, final boolean on) {
 		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
 				.getClientProperty("waiter");
@@ -482,21 +457,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 		jc.putClientProperty("waiter", w);
 	}
-
-	// @SuppressWarnings("unchecked")
-	// private void setWaiting(final JComponent jc, final boolean on) {
-	// ImageJ3DWaitIndicator w = (ImageJ3DWaitIndicator) jc
-	// .getClientProperty("waiter");
-	// if (w == null) {
-	// if (on) {
-	// w = new ImageJ3DWaitIndicator(jc);
-	// }
-	// } else if (!on) {
-	// w.dispose();
-	// w = null;
-	// }
-	// jc.putClientProperty("waiter", w);
-	// }
 
 	@SuppressWarnings("unchecked")
 	private void showError(final JComponent jc, final String[] message,

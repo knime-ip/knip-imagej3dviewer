@@ -64,11 +64,13 @@ import javax.swing.SwingUtilities;
 // listener)
 // TODO: set default layer according to decorated component's layer and z order
 // (have to calculate z order on 1.4 JVMs).
+@SuppressWarnings("unchecked")
 public abstract class AbstractComponentDecorator {
 	public static final Rectangle DEFAULT_BOUNDS = null;
 	public static final int TOP = 0;
 	// Disabled for now, since the "bottom" layered pane position doesn't work
 	// as advertised.
+	@SuppressWarnings("unused")
 	private static final int BOTTOM = -1;
 	/**
 	 * Account for the difference between the decorator actual origin and the
@@ -106,7 +108,7 @@ public abstract class AbstractComponentDecorator {
 	 * <p>
 	 * WARNING: BOTTOM doesn't currently work, probably a JLayeredPane bug in
 	 * either the code or documentation.
-	 *
+	 * 
 	 * @see JLayeredPane
 	 */
 	public AbstractComponentDecorator(JComponent c, int layerOffset,
@@ -126,7 +128,7 @@ public abstract class AbstractComponentDecorator {
 
 	/**
 	 * Set the text to be displayed when the mouse is over the decoration.
-	 *
+	 * 
 	 * @see JComponent#setToolTipText(String)
 	 */
 	public void setToolTipText(String text) {
@@ -135,7 +137,7 @@ public abstract class AbstractComponentDecorator {
 
 	/**
 	 * Return the currently set default tooltip text.
-	 *
+	 * 
 	 * @see JComponent#setToolTipText
 	 */
 	public String getToolTipText() {
@@ -147,7 +149,7 @@ public abstract class AbstractComponentDecorator {
 	 * decoration. Note that if you <em>only</em> override this method, you must
 	 * also invoke {@link #setToolTipText(String)} with a non-<span
 	 * class="javakeyword">null</span> argument.
-	 *
+	 * 
 	 * @see JComponent#getToolTipText(MouseEvent)
 	 */
 	public String getToolTipText(MouseEvent e) {
@@ -446,6 +448,11 @@ public abstract class AbstractComponentDecorator {
 
 	/** Used to hook into the Swing painting architecture. */
 	protected class Painter extends JComponent {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
 		private int base;
 		private Cursor cursor;
 		{
@@ -604,6 +611,8 @@ public abstract class AbstractComponentDecorator {
 			}
 		}
 
+
+		@SuppressWarnings("rawtypes")
 		private List findOpaque(Component root) {
 			List list = new ArrayList();
 			if (root.isOpaque() && root instanceof JComponent) {
@@ -618,7 +627,7 @@ public abstract class AbstractComponentDecorator {
 			}
 			return list;
 		}
-
+		@SuppressWarnings("rawtypes")
 		private List findDoubleBuffered(Component root) {
 			List list = new ArrayList();
 			if (root.isDoubleBuffered() && root instanceof JComponent) {
@@ -633,7 +642,7 @@ public abstract class AbstractComponentDecorator {
 			}
 			return list;
 		}
-
+		@SuppressWarnings("rawtypes")
 		private void paintForeground(Graphics g, JComponent jc) {
 			if (!jc.isShowing())
 				return;
@@ -649,6 +658,7 @@ public abstract class AbstractComponentDecorator {
 		}
 
 		/** Walk the list of "background" decorators and paint them. */
+		@SuppressWarnings("rawtypes")
 		public void paint(Graphics g) {
 
 			JLayeredPane lp = (JLayeredPane) getComponent();

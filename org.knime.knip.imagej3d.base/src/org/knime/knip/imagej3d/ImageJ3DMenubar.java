@@ -80,7 +80,8 @@ import javax.vecmath.Color3f;
 import net.imglib2.type.numeric.RealType;
 /**
  * Provides the menubar for the ImageJ3DViewer
- * @author Gabriel
+ * 
+ * @author Gabriel Einsdorf (gabriel.einsdorf@uni-konstanz.d)
  *
  * @param <T>
  */
