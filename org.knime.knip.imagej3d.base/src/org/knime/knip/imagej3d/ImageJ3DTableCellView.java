@@ -55,7 +55,6 @@ import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
 
-import java.awt.AWTEvent;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -70,9 +69,9 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
@@ -111,418 +110,454 @@ import view4d.TimelineGUI;
 
 /**
  * Helper class for the IJ3D viewer, provides the TableCellView.
- *
+ * 
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ImageJ3DTableCellView<T extends RealType<T>> implements
-		TableCellView {
-
-	private NodeLogger m_logger = NodeLogger
-			.getLogger(ImageJ3DTableCellView.class);
-
-	// Default rendering Type
-	private final int m_renderType = ContentConstants.VOLUME;
-
-	// 4D stuff
-	private Timeline m_timeline;
-	private TimelineGUI m_timelineGUI;
-	private JPanel m_panel4D = new JPanel();
-
-	// rendering Universe
-	private Image3DUniverse m_universe;
-	private Component m_universePanel;
-
-	// Container for the converted picture,
-	private ImagePlus m_ijImagePlus;
-
-	// ui containers
-	private JPanel m_rootPanel;
-
-	// Stores the Image that the viewer displays
-	private  DataValue m_dataValue;
-
-	/**
-	 *
-	 * @return the immage the viewer is displaying
-	 */
-
-	public final DataValue getDataValue() {
-		return m_dataValue;
-	}
-
-	// Container for picture
-	private Content m_c;
-
-	// Creates a viewer which will be updated on "updateComponent"
-	@Override
-	public final Component getViewComponent() {
-		// Fixes Canvas covering menu
-		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-
-		// universe for rendering the image
-		m_universe = new Image3DUniverse();
-		m_timeline = m_universe.getTimeline();
-
-		// Container for the viewComponent
-		m_rootPanel = new JPanel(new BorderLayout());
-
-		// Menubar
-		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
-
-		// add menubar and 3Duniverse to the panel
-		m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
-
-		return m_rootPanel;
-	}
-
-	/**
-	 * flushes the cache and updates the Component.
-	 *
-	 * @param valueToView
-	 *            TheImgPlus that is to be displayed by the viewer.
-	 */
-	protected final void fullReload(final DataValue valueToView) {
-		m_dataValue = null;
-		m_rootPanel.remove(m_universePanel);
-		updateComponent(valueToView);
-	}
-
-	/**
-	 * updates the Component, called whenever a new picture is selected, or the
-	 * view is reset.
-	 *
-	 * @param valueToView
-	 * The ImgPlus that is to be displayed by the viewer.
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public final void updateComponent(final DataValue valueToView) {
-
-		if (m_dataValue == null || !(m_dataValue.equals(valueToView))) {
-			// New image arrives
-			m_universe.resetView();
-			m_universe.removeAllContents(); // cleanup universe
-
-			m_dataValue = valueToView;
-
-			showError(m_rootPanel, null, false);
-			setWaiting(m_rootPanel, true);
-
-			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
-
-				@Override
-				protected ImgPlus<T> doInBackground() throws Exception {
-
-					ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
-							.getImgPlus();
-
-					// abort if input image has to few dimensions.
-					if (in.numDimensions() < 3) {
-						showError(m_rootPanel, new String[] {
-								"Only immages with a minimum of 3 Dimensions",
-								"are supported by the 3D viewer" }, true);
-						return null;
-					}
-
-					// abort if input image has to many dimensions.
-					if (in.numDimensions() > 5) {
-						showError(m_rootPanel, new String[] {
-								"Only immages with up to 5 Dimensions",
-								"are supported by the 3D viewer" }, true);
-						return null;
-					}
-
-					ImgPlus<T> imgPlus = null;
-					final T firstElement = in.firstElement();
-
-					// Convert to ByteType if needed.
-					imgPlus = (ImgPlus<T>) in;
-
-					// abort if unsuported type
-					if (firstElement instanceof DoubleType) {
-						// TODO Add normalisation
-						showError(m_rootPanel, new String[] {
-								"DoubleType images are not supported!",
-								"convert to any different Type eg. ByteType" },
-								true);
-						return null;
-					}
-
-					// initalize ImgToIJ converter.
-					ImgToIJ imgToIJ = new ImgToIJ();
-
-					// validate if mapping can be inferred automatically
-					if (!imgToIJ.validateMapping(imgPlus)) {
-						if (!imgToIJ.inferMapping(imgPlus)) {
-							showError(
-									m_rootPanel,
-									new String[] {"Warning: couldn't match dimensions of input picture" },
-									true);
-							return null;
-						}
-					}
-					// convert to ijImagePlus.
-					try {
-						m_ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-					} catch (UntransformableIJTypeException f) {
-						try {
-							// convert to ByteType if imgToIJ fails to convert,
-							// fixes most untransformable IJType errors.
-							ImgPlus<ByteType> imgPlusConverted = null;
-							ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
-									in, new Convert<T, ByteType>(firstElement,
-											new ByteType(),
-											TypeConversionTypes.SCALE),
-									new ByteType());
-
-							imgPlusConverted = new ImgPlus<ByteType>(
-									new ImgView<ByteType>(converted, in
-											.factory().imgFactory(
-													new ByteType())), in);
-							// second attempt at imgToIJ conversion.
-							m_ijImagePlus = Operations.compute(imgToIJ,
-									imgPlusConverted);
-						} catch (IncompatibleTypeException f1) {
-
-							showError(
-									m_rootPanel,
-									new String[] {" Can't convert the picture to ijImagePlus" },
-									true);
-							return null;
-						}
-					}
-
-					// convert into 8-Bit gray values image.
-					try {
-						new StackConverter(m_ijImagePlus).convertToGray8();
-					} catch (java.lang.IllegalArgumentException e) {
-						showError(
-								m_rootPanel,
-								new String[] {"Can't convert the picture to ijImagePlus" },
-								true);
-						return null;
-					}
-
-					// select the rendertype
-					switch (m_renderType) {
-					case ContentConstants.ORTHO:
-						m_c = m_universe.addOrthoslice(m_ijImagePlus);
-						break;
-					case ContentConstants.MULTIORTHO:
-						m_c = m_universe.addOrthoslice(m_ijImagePlus);
-						m_c.displayAs(ContentConstants.MULTIORTHO);
-					case ContentConstants.VOLUME:
-						m_c = m_universe.addVoltex(m_ijImagePlus);
-						break;
-					case ContentConstants.SURFACE:
-						m_c = m_universe.addMesh(m_ijImagePlus);
-						break;
-					case ContentConstants.SURFACE_PLOT2D:
-						m_c = m_universe.addSurfacePlot(m_ijImagePlus);
-						break;
-					default:
-						break;
-					}
-					m_universe.updateTimeline();
-					return imgPlus;
-				}
-
-				@Override
-				protected void done() {
-
-					ImgPlus<T> imgPlus = null;
-					try {
-						imgPlus = get();
-					} catch (Exception e) {
-						e.printStackTrace();
-						return;
-					}
-
-					// Error happend during rendering
-					if (imgPlus == null) {
-						return;
-					}
-
-					//
-					m_universePanel = m_universe.getCanvas(0);
-					m_rootPanel.add(m_universePanel, BorderLayout.CENTER);
-
-					// enables the timeline gui if picture has 4 or 5 Dimensions
-					if (m_ijImagePlus.getNFrames() > 1) {
-						m_timelineGUI = new TimelineGUI(m_timeline);
-						m_panel4D = m_timelineGUI.getPanel();
-						m_universe.setTimelineGui(m_timelineGUI);
-
-						m_panel4D.setVisible(true);
-						m_rootPanel.add(m_panel4D, BorderLayout.SOUTH);
-					} else {
-						m_panel4D.setVisible(false);
-					}
-					setWaiting(m_rootPanel, false);
-
-
-					//Dirty Hack, simulates mouseclick on the component to force rendering.
-					Robot robbie;
-					try {
-						robbie = new Robot();
-						Point m = MouseInfo.getPointerInfo().getLocation();
-						Point p = m_rootPanel.getLocationOnScreen();
-						robbie.mouseMove(p.x+2, p.y+30);
-						robbie.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-						robbie.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-						robbie.delay(15);
-						robbie.mouseMove(m.x, m.y);
-
-					} catch (AWTException e) {
-					}
-				}
-
-			};
-
-			worker.execute();
-		}
-	}
-
-	private class ImageJ3DWaitIndicator extends WaitIndicator {
-		public ImageJ3DWaitIndicator(final JComponent target) {
-			super(target);
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			Rectangle r = getDecorationBounds();
-			g = g.create();
-			g.setColor(new Color(103, 117, 219, 255));
-			g.fillRect(r.x, r.y, r.width, r.height);
-			g.setColor(new Color(255, 255, 255));
-			g.setFont(new Font("Helvetica", Font.BOLD, 50));
-			((Graphics2D) g).setRenderingHint(
-					RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			g.drawString("loading....", 10, 200);
-			repaint();
-			g.dispose();
-
-		}
-	}
-
-	private class ImageJ3DErrorIndicator extends WaitIndicator {
-
-		private String[] m_errorText = {"Error"};
-
-		public ImageJ3DErrorIndicator(final JComponent target,
-				final String[] message) {
-			super(target);
-			getPainter().setCursor(
-					Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			this.m_errorText = message;
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			Rectangle r = getDecorationBounds();
-			g = g.create();
-			g.setColor(new Color(200, 20, 30, 255));
-			g.fillRect(r.x, r.y, r.width, r.height);
-			if (m_errorText == null) {
-				m_errorText = new String[] {"unknown Error!"};
-			}
-
-			((Graphics2D) g).setRenderingHint(
-					RenderingHints.KEY_TEXT_ANTIALIASING,
-					RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-			// Title Warning
-			g.setColor(new Color(255, 255, 255));
-			g.setFont(new Font("Helvetica", Font.BOLD, 50));
-			g.drawString("ERROR", 10, 130);
-
-			// Error message
-			g.setFont(new Font("TimesRoman", Font.BOLD, 14));
-			int newline = g.getFontMetrics().getHeight() + 5;
-			int y = 200;
-			for (int i = 0; i < m_errorText.length; i++) {
-				g.drawString(m_errorText[i], 10, y += newline);
-			}
-			g.dispose();
-
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void setWaiting(final JComponent jc, final boolean on) {
-		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
-				.getClientProperty("waiter");
-		if (w == null) {
-			if (on) {
-				w = new SpinningDialWaitIndicator(jc);
-			}
-		} else if (!on) {
-			w.dispose();
-			w = null;
-		}
-		jc.putClientProperty("waiter", w);
-	}
-
-//	@SuppressWarnings("unchecked")
-//	private void setWaiting(final JComponent jc, final boolean on) {
-//		ImageJ3DWaitIndicator w = (ImageJ3DWaitIndicator) jc
-//				.getClientProperty("waiter");
-//		if (w == null) {
-//			if (on) {
-//				w = new ImageJ3DWaitIndicator(jc);
-//			}
-//		} else if (!on) {
-//			w.dispose();
-//			w = null;
-//		}
-//		jc.putClientProperty("waiter", w);
-//	}
-
-	@SuppressWarnings("unchecked")
-	private void showError(final JComponent jc, final String[] message,
-			final boolean on) {
-		ImageJ3DErrorIndicator w = (ImageJ3DErrorIndicator) jc
-				.getClientProperty("error");
-		if (w == null) {
-			if (on) {
-				m_logger.warn(message[0]);
-				w = new ImageJ3DErrorIndicator(jc, message);
-			}
-		} else if (!on) {
-			w.dispose();
-			w = null;
-		}
-		jc.putClientProperty("error", w);
-	}
-
-	@Override
-	public final void onClose() {
-		m_dataValue = null;
-		m_universe.removeAllContents();
-	}
-
-	@Override
-	public final String getName() {
-		return "ImageJ 3D Viewer";
-	}
-
-	@Override
-	public final String getDescription() {
-		return "ImageJ 3D viewer";
-	}
-
-	@Override
-	public void loadConfigurationFrom(final ConfigRO config) {
-	}
-
-	@Override
-	public void saveConfigurationTo(final ConfigWO config) {
-	}
-
-	@Override
-	public void onReset() {
-	}
+        TableCellView {
+
+    private NodeLogger m_logger = NodeLogger
+            .getLogger(ImageJ3DTableCellView.class);
+
+    // Default rendering Type
+    private final int m_renderType = ContentConstants.VOLUME;
+
+    // 4D stuff
+    private Timeline m_timeline;
+
+    private TimelineGUI m_timelineGUI;
+
+    private JPanel m_panel4D = new JPanel();
+
+    // rendering Universe
+    private Image3DUniverse m_universe;
+
+    private Component m_universePanel;
+
+    // Container for the converted picture,
+    private ImagePlus m_ijImagePlus;
+
+    // ui containers
+    private JPanel m_rootPanel;
+
+    // Stores the Image that the viewer displays
+    private DataValue m_dataValue;
+
+    /**
+     * 
+     * @return the immage the viewer is displaying
+     */
+
+    public final DataValue getDataValue() {
+        return m_dataValue;
+    }
+
+    // Container for picture
+    private Content m_c;
+
+    // Creates a viewer which will be updated on "updateComponent"
+    @Override
+    public final Component getViewComponent() {
+        // Fixes Canvas covering menu
+        JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+        ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+
+        // universe for rendering the image
+        m_universe = new Image3DUniverse();
+        m_timeline = m_universe.getTimeline();
+
+        // Container for the viewComponent
+        m_rootPanel = new JPanel(new BorderLayout());
+
+        // Menubar
+        ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
+
+        // add menubar and 3Duniverse to the panel
+        m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
+
+        return m_rootPanel;
+    }
+
+    /**
+     * flushes the cache and updates the Component.
+     * 
+     * @param valueToView TheImgPlus that is to be displayed by the viewer.
+     */
+    protected final void fullReload(final DataValue valueToView) {
+        m_dataValue = null;
+        m_rootPanel.remove(m_universePanel);
+        updateComponent(valueToView);
+    }
+
+    /**
+     * updates the Component, called whenever a new picture is selected, or the
+     * view is reset.
+     * 
+     * @param valueToView The ImgPlus that is to be displayed by the viewer.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public final void updateComponent(final DataValue valueToView) {
+
+        if (m_dataValue == null || !(m_dataValue.equals(valueToView))) {
+            // New image arrives
+            m_universe.resetView();
+            m_universe.removeAllContents(); // cleanup universe
+
+            m_dataValue = valueToView;
+
+            showError(m_rootPanel, null, false);
+            setWaiting(m_rootPanel, true);
+
+            SwingWorker<ImgPlus<T>, Integer> worker =
+                    new SwingWorker<ImgPlus<T>, Integer>() {
+
+                        @Override
+                        protected ImgPlus<T> doInBackground() throws Exception {
+
+                            ImgPlus<T> in =
+                                    ((ImgPlusValue<T>)valueToView).getImgPlus();
+
+                            // abort if input image has to few dimensions.
+                            if (in.numDimensions() < 3) {
+                                showError(
+                                        m_rootPanel,
+                                        new String[]{
+                                                "Only immages with a minimum of 3 Dimensions",
+                                                "are supported by the 3D viewer"},
+                                        true);
+                                return null;
+                            }
+
+                            // abort if input image has to many dimensions.
+                            if (in.numDimensions() > 5) {
+                                showError(m_rootPanel, new String[]{
+                                        "Only immages with up to 5 Dimensions",
+                                        "are supported by the 3D viewer"}, true);
+                                return null;
+                            }
+
+                            ImgPlus<T> imgPlus = null;
+                            final T firstElement = in.firstElement();
+
+                            // Convert to ByteType if needed.
+                            imgPlus = (ImgPlus<T>)in;
+
+                            // abort if unsuported type
+                            if (firstElement instanceof DoubleType) {
+                                // TODO Add normalisation
+                                showError(
+                                        m_rootPanel,
+                                        new String[]{
+                                                "DoubleType images are not supported!",
+                                                "convert to any different Type eg. ByteType"},
+                                        true);
+                                return null;
+                            }
+
+                            // initalize ImgToIJ converter.
+                            ImgToIJ imgToIJ = new ImgToIJ();
+
+                            // validate if mapping can be inferred automatically
+                            if (!imgToIJ.validateMapping(imgPlus)) {
+                                if (!imgToIJ.inferMapping(imgPlus)) {
+                                    showError(
+                                            m_rootPanel,
+                                            new String[]{"Warning: couldn't match dimensions of input picture"},
+                                            true);
+                                    return null;
+                                }
+                            }
+                            // convert to ijImagePlus.
+                            try {
+                                m_ijImagePlus =
+                                        Operations.compute(imgToIJ, imgPlus);
+                            } catch (UntransformableIJTypeException f) {
+                                try {
+                                    // convert to ByteType if imgToIJ fails to
+                                    // convert,
+                                    // fixes most untransformable IJType errors.
+                                    ImgPlus<ByteType> imgPlusConverted = null;
+                                    ConvertedRandomAccessibleInterval<T, ByteType> converted =
+                                            new ConvertedRandomAccessibleInterval<T, ByteType>(
+                                                    in,
+                                                    new Convert<T, ByteType>(
+                                                            firstElement,
+                                                            new ByteType(),
+                                                            TypeConversionTypes.SCALE),
+                                                    new ByteType());
+
+                                    imgPlusConverted =
+                                            new ImgPlus<ByteType>(
+                                                    new ImgView<ByteType>(
+                                                            converted,
+                                                            in.factory()
+                                                                    .imgFactory(
+                                                                            new ByteType())),
+                                                    in);
+                                    // second attempt at imgToIJ conversion.
+                                    m_ijImagePlus =
+                                            Operations.compute(imgToIJ,
+                                                    imgPlusConverted);
+                                } catch (IncompatibleTypeException f1) {
+
+                                    showError(
+                                            m_rootPanel,
+                                            new String[]{" Can't convert the picture to ijImagePlus"},
+                                            true);
+                                    return null;
+                                }
+                            }
+
+                            // convert into 8-Bit gray values image.
+                            try {
+                                new StackConverter(m_ijImagePlus)
+                                        .convertToGray8();
+                            } catch (java.lang.IllegalArgumentException e) {
+                                showError(
+                                        m_rootPanel,
+                                        new String[]{"Can't convert the picture to ijImagePlus"},
+                                        true);
+                                return null;
+                            }
+
+                            // select the rendertype
+                            switch (m_renderType) {
+                            case ContentConstants.ORTHO:
+                                m_c = m_universe.addOrthoslice(m_ijImagePlus);
+                                break;
+                            case ContentConstants.MULTIORTHO:
+                                m_c = m_universe.addOrthoslice(m_ijImagePlus);
+                                m_c.displayAs(ContentConstants.MULTIORTHO);
+                            case ContentConstants.VOLUME:
+                                m_c = m_universe.addVoltex(m_ijImagePlus);
+                                break;
+                            case ContentConstants.SURFACE:
+                                m_c = m_universe.addMesh(m_ijImagePlus);
+                                break;
+                            case ContentConstants.SURFACE_PLOT2D:
+                                m_c = m_universe.addSurfacePlot(m_ijImagePlus);
+                                break;
+                            default:
+                                break;
+                            }
+                            m_universe.updateTimeline();
+                            return imgPlus;
+                        }
+
+                        @Override
+                        protected void done() {
+
+                            ImgPlus<T> imgPlus = null;
+                            try {
+                                imgPlus = get();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return;
+                            }
+
+                            // Error happend during rendering
+                            if (imgPlus == null) {
+                                return;
+                            }
+
+                            //
+                            m_universePanel = m_universe.getCanvas(0);
+                            try {
+                                m_rootPanel.add(m_universePanel,
+                                        BorderLayout.CENTER);
+                            } catch (IllegalArgumentException e) {
+                                // TEMPORARY error handling: openen the 3D view
+                                // on different monitors doesn't work so far, at
+                                // least with linux
+                                if (e.getLocalizedMessage()
+                                        .equals("adding a container to a container on a different GraphicsDevice")) {
+                                    m_rootPanel
+                                            .add(new JLabel(
+                                                    "Opening the 3D view on different monitors doesn't work so far, sorry. We are working on it ..."));
+                                } else {
+                                    throw e;
+                                }
+                            }
+
+                            // enables the timeline gui if picture has 4 or 5
+                            // Dimensions
+                            if (m_ijImagePlus.getNFrames() > 1) {
+                                m_timelineGUI = new TimelineGUI(m_timeline);
+                                m_panel4D = m_timelineGUI.getPanel();
+                                m_universe.setTimelineGui(m_timelineGUI);
+
+                                m_panel4D.setVisible(true);
+                                m_rootPanel.add(m_panel4D, BorderLayout.SOUTH);
+                            } else {
+                                m_panel4D.setVisible(false);
+                            }
+                            setWaiting(m_rootPanel, false);
+
+                            // Dirty Hack, simulates mouseclick on the component
+                            // to force rendering.
+                            Robot robbie;
+                            try {
+                                robbie = new Robot();
+                                Point m =
+                                        MouseInfo.getPointerInfo()
+                                                .getLocation();
+                                Point p = m_rootPanel.getLocationOnScreen();
+                                robbie.mouseMove(p.x + 2, p.y + 30);
+                                robbie.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+                                robbie.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+                                robbie.delay(15);
+                                robbie.mouseMove(m.x, m.y);
+
+                            } catch (AWTException e) {
+                            }
+                        }
+
+                    };
+
+            worker.execute();
+        }
+    }
+
+    private class ImageJ3DWaitIndicator extends WaitIndicator {
+        public ImageJ3DWaitIndicator(final JComponent target) {
+            super(target);
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            Rectangle r = getDecorationBounds();
+            g = g.create();
+            g.setColor(new Color(103, 117, 219, 255));
+            g.fillRect(r.x, r.y, r.width, r.height);
+            g.setColor(new Color(255, 255, 255));
+            g.setFont(new Font("Helvetica", Font.BOLD, 50));
+            ((Graphics2D)g).setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.drawString("loading....", 10, 200);
+            repaint();
+            g.dispose();
+
+        }
+    }
+
+    private class ImageJ3DErrorIndicator extends WaitIndicator {
+
+        private String[] m_errorText = {"Error"};
+
+        public ImageJ3DErrorIndicator(final JComponent target,
+                final String[] message) {
+            super(target);
+            getPainter().setCursor(
+                    Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            this.m_errorText = message;
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            Rectangle r = getDecorationBounds();
+            g = g.create();
+            g.setColor(new Color(200, 20, 30, 255));
+            g.fillRect(r.x, r.y, r.width, r.height);
+            if (m_errorText == null) {
+                m_errorText = new String[]{"unknown Error!"};
+            }
+
+            ((Graphics2D)g).setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            // Title Warning
+            g.setColor(new Color(255, 255, 255));
+            g.setFont(new Font("Helvetica", Font.BOLD, 50));
+            g.drawString("ERROR", 10, 130);
+
+            // Error message
+            g.setFont(new Font("TimesRoman", Font.BOLD, 14));
+            int newline = g.getFontMetrics().getHeight() + 5;
+            int y = 200;
+            for (int i = 0; i < m_errorText.length; i++) {
+                g.drawString(m_errorText[i], 10, y += newline);
+            }
+            g.dispose();
+
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setWaiting(final JComponent jc, final boolean on) {
+        SpinningDialWaitIndicator w =
+                (SpinningDialWaitIndicator)jc.getClientProperty("waiter");
+        if (w == null) {
+            if (on) {
+                w = new SpinningDialWaitIndicator(jc);
+            }
+        } else if (!on) {
+            w.dispose();
+            w = null;
+        }
+        jc.putClientProperty("waiter", w);
+    }
+
+    // @SuppressWarnings("unchecked")
+    // private void setWaiting(final JComponent jc, final boolean on) {
+    // ImageJ3DWaitIndicator w = (ImageJ3DWaitIndicator) jc
+    // .getClientProperty("waiter");
+    // if (w == null) {
+    // if (on) {
+    // w = new ImageJ3DWaitIndicator(jc);
+    // }
+    // } else if (!on) {
+    // w.dispose();
+    // w = null;
+    // }
+    // jc.putClientProperty("waiter", w);
+    // }
+
+    @SuppressWarnings("unchecked")
+    private void showError(final JComponent jc, final String[] message,
+            final boolean on) {
+        ImageJ3DErrorIndicator w =
+                (ImageJ3DErrorIndicator)jc.getClientProperty("error");
+        if (w == null) {
+            if (on) {
+                m_logger.warn(message[0]);
+                w = new ImageJ3DErrorIndicator(jc, message);
+            }
+        } else if (!on) {
+            w.dispose();
+            w = null;
+        }
+        jc.putClientProperty("error", w);
+    }
+
+    @Override
+    public final void onClose() {
+        m_dataValue = null;
+        m_universe.removeAllContents();
+    }
+
+    @Override
+    public final String getName() {
+        return "ImageJ 3D Viewer";
+    }
+
+    @Override
+    public final String getDescription() {
+        return "ImageJ 3D viewer";
+    }
+
+    @Override
+    public void loadConfigurationFrom(final ConfigRO config) {
+    }
+
+    @Override
+    public void saveConfigurationTo(final ConfigWO config) {
+    }
+
+    @Override
+    public void onReset() {
+    }
 
 }
