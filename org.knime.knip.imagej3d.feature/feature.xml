@@ -3,10 +3,12 @@
       id="org.knime.knip.imagej3d.feature"
       label="KNIME Image Processing - ImageJ 3D Viewer Integration"
       version="1.0.0.qualifier"
-      provider-name="KNIME / FIJI">
+      provider-name="KNIME / FIJI (http://3dviewer.neurofly.de/)">
 
    <description>
       KNIME Image Processing - ImageJ3D Viewer Integration
+
+see: http://3dviewer.neurofly.de/ for details
    </description>
 
    <copyright>
