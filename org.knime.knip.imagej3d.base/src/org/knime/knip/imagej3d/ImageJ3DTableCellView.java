@@ -104,7 +104,7 @@ import view4d.TimelineGUI;
 
 /**
  * Helper class for the ImageJ 3D Viewer, which provides the TableCellView.
- * 
+ *
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ImageJ3DTableCellView<T extends RealType<T>> implements
@@ -138,7 +138,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	private DataValue m_dataValue;
 
 	/**
-	 * 
+	 *
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -174,7 +174,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	/**
 	 * flushes the cache and updates the Component.
-	 * 
+	 *
 	 * @param valueToView
 	 *            TheImgPlus that is to be displayed by the viewer.
 	 */
@@ -187,7 +187,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	/**
 	 * updates the Component, called whenever a new picture is selected, or the
 	 * view is reset.
-	 * 
+	 *
 	 * @param valueToView
 	 *            The ImgPlus that is to be displayed by the viewer.
 	 */
@@ -394,9 +394,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} catch (AWTException e) {
 					}
 				}
-
 			};
-
 			worker.execute();
 		}
 	}
@@ -444,14 +442,20 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		}
 	}
 
-	private void setWaiting(final JComponent jc, final boolean on) {
+	/**
+	 * Display a waiting indicator on top of the selected JPanel.
+	 * @param jc The JPanel that the waiting indicator will be placed upon
+	 * @param display if <code>true</code> the waiting indicator will be displayed,
+	 * if <code>false</code> any waiting indicator on the JPanel is discarded.
+	 */
+	private void setWaiting(final JComponent jc, final boolean display) {
 		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
 				.getClientProperty("waiter");
 		if (w == null) {
-			if (on) {
+			if (display) {
 				w = new SpinningDialWaitIndicator(jc);
 			}
-		} else if (!on) {
+		} else if (!display) {
 			w.dispose();
 			w = null;
 		}
