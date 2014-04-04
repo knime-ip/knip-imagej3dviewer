@@ -156,18 +156,19 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
-		// universe for rendering the image
-		m_universe = new Image3DUniverse();
-		m_timeline = m_universe.getTimeline();
-
-		// Container for the viewComponent
+//		// universe for rendering the image
+//		m_universe = new Image3DUniverse();
+//		m_timeline = m_universe.getTimeline();
+//
+//		// Container for the viewComponent
 		m_rootPanel = new JPanel(new BorderLayout());
-
-		// Menubar
-		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
-
-		// add menubar and 3Duniverse to the panel
-		m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
+		m_rootPanel.setVisible(true);
+//
+//		// Menubar
+//		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
+//
+//		// add menubar and 3Duniverse to the panel
+//		m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
 
 		return m_rootPanel;
 	}
@@ -196,6 +197,18 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	public final void updateComponent(final DataValue valueToView) {
 
 		if (m_dataValue == null || !(m_dataValue.equals(valueToView))) {
+
+			// universe for rendering the image
+			m_universe = new Image3DUniverse();
+			m_timeline = m_universe.getTimeline();
+
+			// Menubar
+			ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
+
+			// add menubar and 3Duniverse to the panel
+			m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
+
+
 			// New image arrives
 			m_universe.resetView();
 			m_universe.removeAllContents(); // cleanup universe
@@ -366,6 +379,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 					// enables the timeline gui if picture has 4 or 5
 					// Dimensions
+					setWaiting(m_rootPanel, false);
+
 					if (m_ijImagePlus.getNFrames() > 1) {
 						m_timelineGUI = new TimelineGUI(m_timeline);
 						m_panel4D = m_timelineGUI.getPanel();
@@ -376,7 +391,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} else {
 						m_panel4D.setVisible(false);
 					}
-					setWaiting(m_rootPanel, false);
 
 					// Dirty Hack, simulates mouseclick on the component
 					// to force rendering.
