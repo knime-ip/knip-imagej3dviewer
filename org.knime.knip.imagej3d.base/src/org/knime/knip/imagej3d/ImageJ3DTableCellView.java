@@ -496,7 +496,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@Override
 	public final void onClose() {
 		m_dataValue = null;
-		m_universe.removeAllContents();
 	}
 
 	@Override
