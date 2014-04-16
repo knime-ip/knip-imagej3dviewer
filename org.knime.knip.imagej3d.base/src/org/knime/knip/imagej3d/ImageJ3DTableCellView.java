@@ -200,22 +200,22 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				@Override
 				protected ImgPlus<T> doInBackground() throws Exception {
 
-			// universe for rendering the image
-			m_universe = new Image3DUniverse();
-			m_timeline = m_universe.getTimeline();
+					// universe for rendering the image
+					m_universe = new Image3DUniverse();
+					m_timeline = m_universe.getTimeline();
 
-			// Menubar
+					// Menubar
 					ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(
 							m_universe, context);
 
-			// add menubar and 3Duniverse to the panel
-			m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
+					// add menubar and 3Duniverse to the panel
+					m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
 
-			// New image arrives
-			m_universe.resetView();
-			m_universe.removeAllContents(); // cleanup universe
+					// New image arrives
+					m_universe.resetView();
+					m_universe.removeAllContents(); // cleanup universe
 
-			m_dataValue = valueToView;
+					m_dataValue = valueToView;
 					ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
 							.getImgPlus();
 
@@ -238,11 +238,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					ImgPlus<T> imgPlus = null;
 					final T firstElement = in.firstElement();
 
-					// Convert to ByteType if needed.
-					imgPlus = (ImgPlus<T>) in;
+					// wrap for compatibility
+					ImgPlus<T> imgPlus = (ImgPlus<T>) in;
 
 					// abort if unsuported type
 					if (firstElement instanceof DoubleType) {
@@ -452,9 +451,13 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	/**
 	 * Display a waiting indicator on top of the selected JPanel.
-	 * @param jc The JPanel that the waiting indicator will be placed upon
-	 * @param display if <code>true</code> the waiting indicator will be displayed,
-	 * if <code>false</code> any waiting indicator on the JPanel is discarded.
+	 *
+	 * @param jc
+	 *            The JPanel that the waiting indicator will be placed upon
+	 * @param display
+	 *            if <code>true</code> the waiting indicator will be displayed,
+	 *            if <code>false</code> any waiting indicator on the JPanel is
+	 *            discarded.
 	 */
 	private void setWaiting(final JComponent jc, final boolean display) {
 		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
