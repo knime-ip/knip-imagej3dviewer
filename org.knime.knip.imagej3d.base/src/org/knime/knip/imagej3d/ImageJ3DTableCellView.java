@@ -94,10 +94,10 @@ import org.knime.core.node.config.ConfigRO;
 import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
+import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
 import org.knime.knip.imagej2.core.util.UntransformableIJTypeException;
-import org.knime.knip.imagej3d.libs.SpinningDialWaitIndicator;
-import org.knime.knip.imagej3d.libs.WaitIndicator;
+import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 
 import view4d.Timeline;
 import view4d.TimelineGUI;
@@ -193,7 +193,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			final ImageJ3DTableCellView<T> context = this;
 
 			showError(m_rootPanel, null, false);
-			setWaiting(m_rootPanel, true);
+	        WaitingIndicatorUtils.setWaiting(m_rootPanel, true);
 
 			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
@@ -369,9 +369,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						}
 					}
 
+					WaitingIndicatorUtils.setWaiting(m_rootPanel, false);
+
 					// enables the timeline gui if picture has 4 or 5
 					// Dimensions
-					setWaiting(m_rootPanel, false);
 
 					if (m_ijImagePlus.getNFrames() > 1) {
 						m_timelineGUI = new TimelineGUI(m_timeline);
@@ -447,30 +448,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			g.dispose();
 
 		}
-	}
-
-	/**
-	 * Display a waiting indicator on top of the selected JPanel.
-	 *
-	 * @param jc
-	 *            The JPanel that the waiting indicator will be placed upon
-	 * @param display
-	 *            if <code>true</code> the waiting indicator will be displayed,
-	 *            if <code>false</code> any waiting indicator on the JPanel is
-	 *            discarded.
-	 */
-	private void setWaiting(final JComponent jc, final boolean display) {
-		SpinningDialWaitIndicator w = (SpinningDialWaitIndicator) jc
-				.getClientProperty("waiter");
-		if (w == null) {
-			if (display) {
-				w = new SpinningDialWaitIndicator(jc);
-			}
-		} else if (!display) {
-			w.dispose();
-			w = null;
-		}
-		jc.putClientProperty("waiter", w);
 	}
 
 	@SuppressWarnings("unchecked")
