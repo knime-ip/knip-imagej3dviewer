@@ -156,19 +156,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 
-//		// universe for rendering the image
-//		m_universe = new Image3DUniverse();
-//		m_timeline = m_universe.getTimeline();
-//
-//		// Container for the viewComponent
+		// Container for the viewComponent
 		m_rootPanel = new JPanel(new BorderLayout());
 		m_rootPanel.setVisible(true);
-//
-//		// Menubar
-//		ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
-//
-//		// add menubar and 3Duniverse to the panel
-//		m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
 
 		return m_rootPanel;
 	}
@@ -198,22 +188,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		if (m_dataValue == null || !(m_dataValue.equals(valueToView))) {
 
-			// universe for rendering the image
-			m_universe = new Image3DUniverse();
-			m_timeline = m_universe.getTimeline();
-
-			// Menubar
-			ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(m_universe, this);
-
-			// add menubar and 3Duniverse to the panel
-			m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
-
-
-			// New image arrives
-			m_universe.resetView();
-			m_universe.removeAllContents(); // cleanup universe
-
-			m_dataValue = valueToView;
+			// reference to the current object so it can be reached in the
+			// worker.
+			final ImageJ3DTableCellView<T> context = this;
 
 			showError(m_rootPanel, null, false);
 			setWaiting(m_rootPanel, true);
@@ -223,6 +200,22 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				@Override
 				protected ImgPlus<T> doInBackground() throws Exception {
 
+			// universe for rendering the image
+			m_universe = new Image3DUniverse();
+			m_timeline = m_universe.getTimeline();
+
+			// Menubar
+					ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(
+							m_universe, context);
+
+			// add menubar and 3Duniverse to the panel
+			m_rootPanel.add(ij3dbar, BorderLayout.NORTH);
+
+			// New image arrives
+			m_universe.resetView();
+			m_universe.removeAllContents(); // cleanup universe
+
+			m_dataValue = valueToView;
 					ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
 							.getImgPlus();
 
@@ -409,6 +402,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 				}
 			};
+
 			worker.execute();
 		}
 	}
