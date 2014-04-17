@@ -193,7 +193,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			final ImageJ3DTableCellView<T> context = this;
 
 			showError(m_rootPanel, null, false);
-	        WaitingIndicatorUtils.setWaiting(m_rootPanel, true);
+			WaitingIndicatorUtils.setWaiting(m_rootPanel, true);
 
 			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
@@ -311,29 +311,33 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					try{
-					// select the rendertype
-					switch (m_renderType) {
-					case ContentConstants.ORTHO:
-						m_c = m_universe.addOrthoslice(m_ijImagePlus);
-						break;
-					case ContentConstants.MULTIORTHO:
-						m_c = m_universe.addOrthoslice(m_ijImagePlus);
-						m_c.displayAs(ContentConstants.MULTIORTHO);
-					case ContentConstants.VOLUME:
-						m_c = m_universe.addVoltex(m_ijImagePlus);
-						break;
-					case ContentConstants.SURFACE:
-						m_c = m_universe.addMesh(m_ijImagePlus);
-						break;
-					case ContentConstants.SURFACE_PLOT2D:
-						m_c = m_universe.addSurfacePlot(m_ijImagePlus);
-						break;
-					default:
-						break;
-					}
-					} catch(Exception e ) {
-						showError(m_rootPanel, new String[] {e.getMessage()}, true);
+					try {
+						// select the rendertype
+						switch (m_renderType) {
+						case ContentConstants.ORTHO:
+							m_c = m_universe.addOrthoslice(m_ijImagePlus);
+							break;
+						case ContentConstants.MULTIORTHO:
+							m_c = m_universe.addOrthoslice(m_ijImagePlus);
+							m_c.displayAs(ContentConstants.MULTIORTHO);
+						case ContentConstants.VOLUME:
+							m_c = m_universe.addVoltex(m_ijImagePlus);
+							break;
+						case ContentConstants.SURFACE:
+							m_c = m_universe.addMesh(m_ijImagePlus);
+							break;
+						case ContentConstants.SURFACE_PLOT2D:
+							m_c = m_universe.addSurfacePlot(m_ijImagePlus);
+							break;
+						default:
+							break;
+						}
+					} catch (Exception e) {
+						WaitingIndicatorUtils.setWaiting(m_rootPanel, false);
+						showError(m_rootPanel, new String[] {
+								"error adding picture to universe:",
+								e.getClass().getSimpleName() }, true);
+						return null;
 					}
 
 					m_universe.updateTimeline();
@@ -431,8 +435,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			g.setFont(new Font("TimesRoman", Font.BOLD, 14));
 			int newline = g.getFontMetrics().getHeight() + 5;
 			int y = 200;
-			for (int i = 0; i < m_errorText.length; i++) {
-				g.drawString(m_errorText[i], 10, y += newline);
+			for (String s : m_errorText) {
+				g.drawString(s, 10, y += newline);
 			}
 			g.dispose();
 
@@ -446,7 +450,11 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 				.getClientProperty("error");
 		if (w == null) {
 			if (on) {
-				m_logger.warn(message[0]);
+				String loggerMessage = "";
+				for (String s : message) {
+					loggerMessage += " " + s;
+				}
+				m_logger.warn(loggerMessage);
 				w = new ImageJ3DErrorIndicator(jc, message);
 			}
 		} else if (!on) {
