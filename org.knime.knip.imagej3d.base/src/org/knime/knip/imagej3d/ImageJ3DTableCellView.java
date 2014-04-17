@@ -311,6 +311,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
+					try{
 					// select the rendertype
 					switch (m_renderType) {
 					case ContentConstants.ORTHO:
@@ -331,6 +332,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					default:
 						break;
 					}
+					} catch(Exception e ) {
+						showError(m_rootPanel, new String[] {e.getMessage()}, true);
+					}
+
 					m_universe.updateTimeline();
 					return imgPlus;
 				}
@@ -383,22 +388,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						m_rootPanel.add(m_panel4D, BorderLayout.SOUTH);
 					} else {
 						m_panel4D.setVisible(false);
-					}
-
-					// Dirty Hack, simulates mouseclick on the component
-					// to force rendering.
-					Robot robbie;
-					try {
-						robbie = new Robot();
-						Point m = MouseInfo.getPointerInfo().getLocation();
-						Point p = m_rootPanel.getLocationOnScreen();
-						robbie.mouseMove(p.x + 2, p.y + 30);
-						robbie.mousePress(InputEvent.BUTTON1_DOWN_MASK);
-						robbie.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-						robbie.delay(15);
-						robbie.mouseMove(m.x, m.y);
-
-					} catch (AWTException e) {
 					}
 				}
 			};
