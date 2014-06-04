@@ -55,7 +55,6 @@ import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
 
-import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -63,12 +62,8 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Robot;
-import java.awt.event.InputEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -95,9 +90,9 @@ import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
+import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
 import org.knime.knip.imagej2.core.util.UntransformableIJTypeException;
-import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 
 import view4d.Timeline;
 import view4d.TimelineGUI;

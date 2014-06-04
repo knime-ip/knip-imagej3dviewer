@@ -18,6 +18,10 @@ Bundle-ClassPath: .,
  lib/ij3d_knip_build.jar,
  lib/j3dcore.jar,
  lib/j3dutils.jar,
- lib/vecmath.jar
+ lib/vecmath.jar,
+ lib/gluegen-rt.jar,
+ lib/joal.jar,
+ lib/jocl.jar,
+ lib/jogl-all.jar
 Bundle-ActivationPolicy: lazy
 

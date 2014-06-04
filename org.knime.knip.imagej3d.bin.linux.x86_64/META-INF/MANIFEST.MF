@@ -8,6 +8,13 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86_64))
 Bundle-Vendor: University of Konstanz
 Bundle-NativeCode: 
- lib/linux/x86_64/libj3dcore-ogl.so;
+ lib/linux/x86_64/libgluegen-rt.so;
+ lib/linux/x86_64/libjoal.so;
+ lib/linux/x86_64/libjocl.so;
+ lib/linux/x86_64/libjogl_desktop.so;
+ lib/linux/x86_64/libnativewindow_awt.so;
+ lib/linux/x86_64/libnativewindow_x11.so;
+ lib/linux/x86_64/libnewt.so;
+ lib/linux/x86_64/libopenal.so;
  osname=Linux;
  processor=x86_64

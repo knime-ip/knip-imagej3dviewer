@@ -7,5 +7,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/j3dcore.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/j3dutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/vecmath.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gluegen-rt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/joal.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jocl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jogl-all.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
