@@ -1,14 +1,21 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ImageJ 3D Viewer Libraries for Windows x86_64
-Bundle-SymbolicName: org.knime.knip.imagej3d.bin.windows.x86_64
+Bundle-SymbolicName: org.knime.knip.imagej3d.bin.windows.amd64
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: University of Konstanz
 Fragment-Host: org.knime.knip.imagej3d.base;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
 Bundle-NativeCode: 
- lib/windows/x86_64/j3dcore-ogl.dll;
+ lib/windows/x86/libgluegen-rt.dll;
+ lib/windows/x86/joal.dll;
+ lib/windows/x86/jocl.dll;
+ lib/windows/x86/jogl_desktop.dll;
+ lib/windows/x86/nativewindow_awt.dll;
+ lib/windows/x86/nativewindow_win32.dll;
+ lib/windows/x86/newt.dll;
+ lib/windows/x86/soft_oal.dll;
  osname=win32;
  osname=Windows 8;
  osname=Windows8;

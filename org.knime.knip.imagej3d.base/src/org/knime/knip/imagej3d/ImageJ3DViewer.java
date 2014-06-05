@@ -57,17 +57,17 @@ import org.knime.knip.base.nodes.view.TableCellViewFactory;
 
 /**
  * Displays a 3D/4D/5D Image.
- *
+ * 
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
- *
+ * 
  * @param <T>
  */
-public class ImageJ3DViewer<T extends RealType<T>> implements TableCellViewFactory {
-
+public class ImageJ3DViewer<T extends RealType<T>> implements
+		TableCellViewFactory {
 
 	@Override
-	public  TableCellView[] createTableCellViews() {
-			return  new TableCellView[] {new ImageJ3DTableCellView<T>() };
+	public TableCellView[] createTableCellViews() {
+		return new TableCellView[] { new ImageJ3DTableCellView<T>() };
 	}
 
 	@Override

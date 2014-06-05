@@ -23,5 +23,6 @@ Bundle-ClassPath: .,
  lib/joal.jar,
  lib/jocl.jar,
  lib/jogl-all.jar
+Bundle-Activator: org.knime.knip.imagej3d.ImageJ3DActivator
 Bundle-ActivationPolicy: lazy
 

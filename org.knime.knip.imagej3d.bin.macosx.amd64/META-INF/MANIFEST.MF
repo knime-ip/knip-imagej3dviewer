@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ImageJ 3D Viewer Libraries for OSX
-Bundle-SymbolicName: org.knime.knip.imagej3d.bin.macosx.x86_64;singleton:=true
+Bundle-SymbolicName: org.knime.knip.imagej3d.bin.macosx.amd64;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: University of Konstanz
 Fragment-Host: org.knime.knip.imagej3d.base;bundle-version="1.0.0"
