@@ -8,14 +8,14 @@ Fragment-Host: org.knime.knip.imagej3d.base;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
 Bundle-NativeCode: 
- lib/windows/x86/libgluegen-rt.dll;
- lib/windows/x86/joal.dll;
- lib/windows/x86/jocl.dll;
- lib/windows/x86/jogl_desktop.dll;
- lib/windows/x86/nativewindow_awt.dll;
- lib/windows/x86/nativewindow_win32.dll;
- lib/windows/x86/newt.dll;
- lib/windows/x86/soft_oal.dll;
+ lib/windows/amd64/libgluegen-rt.dll;
+ lib/windows/amd64/joal.dll;
+ lib/windows/amd64/jocl.dll;
+ lib/windows/amd64/jogl_desktop.dll;
+ lib/windows/amd64/nativewindow_awt.dll;
+ lib/windows/amd64/nativewindow_win32.dll;
+ lib/windows/amd64/newt.dll;
+ lib/windows/amd64/soft_oal.dll;
  osname=win32;
  osname=Windows 8;
  osname=Windows8;
