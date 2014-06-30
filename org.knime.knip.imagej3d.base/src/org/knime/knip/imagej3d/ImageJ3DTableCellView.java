@@ -50,7 +50,6 @@
 package org.knime.knip.imagej3d;
 
 import ij.ImagePlus;
-import ij.measure.Calibration;
 import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
@@ -75,13 +74,16 @@ import javax.swing.ToolTipManager;
 import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.ImgView;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
 import net.imglib2.ops.operation.real.unary.Convert;
 import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
+import net.imglib2.ops.operation.real.unary.Normalize;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.util.ValuePair;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
@@ -262,12 +264,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					try {
 
 						// first convert to unsignedbytetype
-						final ImgPlus<UnsignedByteType> finalImgPlus = convertToUnsignedByteType(imgPlus);
-
-						// then convert to imageplus
-						m_ijImagePlus = ImageJFunctions.wrap(
-								ImgToIJ.extendAndPermute(finalImgPlus),
-								imgPlus.getName());
+						m_ijImagePlus = new ImgToIJ().compute(
+								convertToUnsignedByteType(imgPlus),
+								new ImagePlus());
 
 					} catch (final IncompatibleTypeException f1) {
 						showError(
@@ -277,14 +276,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					final double[] newCalibration = ImgToIJ
-							.getNewCalibration(imgPlus);
-
-					final Calibration cal = new Calibration();
-					cal.pixelWidth = newCalibration[0];
-					cal.pixelHeight = newCalibration[1];
-					cal.pixelDepth = newCalibration[3];
-					m_ijImagePlus.setCalibration(cal);
 					try {
 						// select the rendertype
 						switch (m_renderType) {
@@ -320,20 +311,29 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 				private ImgPlus<UnsignedByteType> convertToUnsignedByteType(
 						final ImgPlus<T> in) throws IncompatibleTypeException {
+					final T inType = in.firstElement().createVariable();
 
-					final T first = in.firstElement().createVariable();
+					final ValuePair<T, T> oldMinMax = Operations.compute(
+							new MinMax<T>(), in);
+					final double factor = Normalize.normalizationFactor(
+							oldMinMax.a.getRealDouble(),
+							oldMinMax.b.getRealDouble(), inType.getMinValue(),
+							inType.getMaxValue());
 
-					if (first instanceof UnsignedByteType) {
+					final Convert<T, UnsignedByteType> convertOp = new Convert<T, UnsignedByteType>(
+							inType, new UnsignedByteType(),
+							TypeConversionTypes.SCALE);
+					convertOp.setFactor(convertOp.getFactor() / factor);
+					convertOp.setInMin(oldMinMax.a.getRealDouble());
+
+					if (inType instanceof UnsignedByteType) {
 						return (ImgPlus<UnsignedByteType>) in;
 					} else {
+
 						return new ImgPlus<UnsignedByteType>(
 								new ImgView<UnsignedByteType>(
 										new ConvertedRandomAccessibleInterval<T, UnsignedByteType>(
-												in,
-												new Convert<T, UnsignedByteType>(
-														first,
-														new UnsignedByteType(),
-														TypeConversionTypes.SCALE),
+												in, convertOp,
 												new UnsignedByteType()), in
 												.factory().imgFactory(
 														new UnsignedByteType())),
@@ -465,6 +465,13 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	@Override
 	public final void onClose() {
 		m_dataValue = null;
+		m_ijImagePlus = null;
+		m_c = null;
+		m_panel4D = null;
+		m_universe = null;
+		m_timeline = null;
+		m_timelineGUI = null;
+		m_logger = null;
 	}
 
 	@Override
