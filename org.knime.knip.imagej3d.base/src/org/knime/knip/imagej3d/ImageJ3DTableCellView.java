@@ -250,55 +250,27 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					// initalize ImgToIJ converter.
-					ImgToIJ imgToIJ = new ImgToIJ();
-
 					// validate if mapping can be inferred automatically
-					if (!imgToIJ.validateMapping(imgPlus)) {
-						if (!imgToIJ.inferMapping(imgPlus)) {
-							showError(
-									m_rootPanel,
-									new String[] { "Warning: Couldn't match dimensions of input image." },
-									true);
-							return null;
-						}
+					if (!ImgToIJ.validateMapping(imgPlus)) {
+						showError(
+								m_rootPanel,
+								new String[] { "Warning: The input image contains unknown dimensions. Currently we only support 'X','Y','Channel,'Z' and 'Time'!" },
+								true);
+						return null;
 					}
+
 					// convert to ijImagePlus.
 					try {
-						m_ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-					} catch (UntransformableIJTypeException f) {
-						try {
-							// convert to ByteType if imgToIJ fails to
-							// convert,
-							// fixes most untransformable IJType errors.
-							ImgPlus<ByteType> imgPlusConverted = null;
-							ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
-									in, new Convert<T, ByteType>(firstElement,
-											new ByteType(),
-											TypeConversionTypes.SCALE),
-									new ByteType());
 
-							imgPlusConverted = new ImgPlus<ByteType>(
-									new ImgView<ByteType>(converted, in
-											.factory().imgFactory(
-													new ByteType())), in);
-							// second attempt at imgToIJ conversion.
-							m_ijImagePlus = Operations.compute(imgToIJ,
-									imgPlusConverted);
-						} catch (IncompatibleTypeException f1) {
+						// first convert to unsignedbytetype
+						final ImgPlus<UnsignedByteType> finalImgPlus = convertToUnsignedByteType(imgPlus);
 
-							showError(
-									m_rootPanel,
-									new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
-									true);
-							return null;
-						}
-					}
+						// then convert to imageplus
+						m_ijImagePlus = ImageJFunctions.wrap(
+								ImgToIJ.extendAndPermute(finalImgPlus),
+								imgPlus.getName());
 
-					// convert into 8-Bit gray values image.
-					try {
-						new StackConverter(m_ijImagePlus).convertToGray8();
-					} catch (java.lang.IllegalArgumentException e) {
+					} catch (final IncompatibleTypeException f1) {
 						showError(
 								m_rootPanel,
 								new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
@@ -306,6 +278,14 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
+					final double[] newCalibration = ImgToIJ
+							.getNewCalibration(imgPlus);
+
+					final Calibration cal = new Calibration();
+					cal.pixelWidth = newCalibration[0];
+					cal.pixelHeight = newCalibration[1];
+					cal.pixelDepth = newCalibration[3];
+					m_ijImagePlus.setCalibration(cal);
 					try {
 						// select the rendertype
 						switch (m_renderType) {
@@ -339,6 +319,29 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					return imgPlus;
 				}
 
+				private ImgPlus<UnsignedByteType> convertToUnsignedByteType(
+						final ImgPlus<T> in) throws IncompatibleTypeException {
+
+					final T first = in.firstElement().createVariable();
+
+					if (first instanceof UnsignedByteType) {
+						return (ImgPlus<UnsignedByteType>) in;
+					} else {
+						return new ImgPlus<UnsignedByteType>(
+								new ImgView<UnsignedByteType>(
+										new ConvertedRandomAccessibleInterval<T, UnsignedByteType>(
+												in,
+												new Convert<T, UnsignedByteType>(
+														first,
+														new UnsignedByteType(),
+														TypeConversionTypes.SCALE),
+												new UnsignedByteType()), in
+												.factory().imgFactory(
+														new UnsignedByteType())),
+								in);
+
+					}
+				}
 				@Override
 				protected void done() {
 
