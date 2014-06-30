@@ -22,4 +22,5 @@ Bundle-ClassPath: .,
  lib/gluegen-rt.jar,
  lib/joal.jar,
  lib/jocl.jar,
- lib/jogl-all.jar
+ lib/jogl-all.jar,
+ lib/imglib2-ij-2.0.0-beta-27-SNAPSHOT.jar
