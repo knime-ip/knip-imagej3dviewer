@@ -50,6 +50,8 @@
 package org.knime.knip.imagej3d;
 
 import ij.ImagePlus;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
@@ -71,18 +73,15 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
-import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.ImgView;
+import net.imglib2.converter.Converter;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
 import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
-import net.imglib2.ops.operation.real.unary.Convert;
-import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
 import net.imglib2.ops.operation.real.unary.Normalize;
+import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
 import net.imglib2.util.ValuePair;
 
 import org.knime.core.data.DataValue;
@@ -93,6 +92,7 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
+import org.knime.knip.imagej2.core.util.ImageProcessorFactory;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
 
 import view4d.Timeline;
@@ -234,14 +234,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					final T firstElement = in.firstElement();
-
-					// wrap for compatibility
-					final ImgPlus<T> imgPlus = in;
-
 					// abort if unsuported type
-					if (firstElement instanceof DoubleType) {
-						// TODO Add normalisation
+					if (in.firstElement() instanceof DoubleType) {
 						showError(
 								m_rootPanel,
 								new String[] {
@@ -252,7 +246,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 
 					// validate if mapping can be inferred automatically
-					if (!ImgToIJ.validateMapping(imgPlus)) {
+					if (!ImgToIJ.validateMapping(in)) {
 						showError(
 								m_rootPanel,
 								new String[] { "Warning: The input image contains unknown dimensions. Currently we only support 'X','Y','Channel,'Z' and 'Time'!" },
@@ -260,21 +254,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					// convert to ijImagePlus.
-					try {
-
-						// first convert to unsignedbytetype
-						m_ijImagePlus = new ImgToIJ().compute(
-								convertToUnsignedByteType(imgPlus),
-								new ImagePlus());
-
-					} catch (final IncompatibleTypeException f1) {
-						showError(
-								m_rootPanel,
-								new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
-								true);
-						return null;
-					}
+					// here we create an converted ImagePlus
+					m_ijImagePlus = createImagePlus(in);
 
 					try {
 						// select the rendertype
@@ -306,40 +287,43 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 
 					m_universe.updateTimeline();
-					return imgPlus;
+					return in;
 				}
 
-				private ImgPlus<UnsignedByteType> convertToUnsignedByteType(
-						final ImgPlus<T> in) throws IncompatibleTypeException {
-					final T inType = in.firstElement().createVariable();
+				/**
+				 * @param firstElement
+				 * @param imgPlus
+				 * @param factor
+				 */
+				private ImagePlus createImagePlus(final ImgPlus<T> in) {
+
+					final double minValue = in.firstElement().getMinValue();
+					final double maxValue = in.firstElement().getMaxValue();
 
 					final ValuePair<T, T> oldMinMax = Operations.compute(
 							new MinMax<T>(), in);
-					final double factor = Normalize.normalizationFactor(
-							oldMinMax.a.getRealDouble(),
-							oldMinMax.b.getRealDouble(), inType.getMinValue(),
-							inType.getMaxValue());
 
-					final Convert<T, UnsignedByteType> convertOp = new Convert<T, UnsignedByteType>(
-							inType, new UnsignedByteType(),
-							TypeConversionTypes.SCALE);
-					convertOp.setFactor(convertOp.getFactor() / factor);
-					convertOp.setInMin(oldMinMax.a.getRealDouble());
+					final double factor = (((maxValue - minValue) / 255))
+							/ Normalize.normalizationFactor(
+									oldMinMax.a.getRealDouble(),
+									oldMinMax.b.getRealDouble(), minValue,
+									maxValue);
 
-					if (inType instanceof UnsignedByteType) {
-						return (ImgPlus<UnsignedByteType>) in;
-					} else {
+					return ImgToIJ.wrap(in, new ImageProcessorFactory() {
 
-						return new ImgPlus<UnsignedByteType>(
-								new ImgView<UnsignedByteType>(
-										new ConvertedRandomAccessibleInterval<T, UnsignedByteType>(
-												in, convertOp,
-												new UnsignedByteType()), in
-												.factory().imgFactory(
-														new UnsignedByteType())),
-								in);
+						@Override
+						public <V extends Type<V>> ImageProcessor createProcessor(
+								final int width, final int height, final V type) {
+							return new ByteProcessor(width, height);
+						}
+					}, new Converter<T, FloatType>() {
 
-					}
+						@Override
+						public void convert(final T input,
+								final FloatType output) {
+							output.setReal(((input.getRealDouble() - minValue) / factor));
+						}
+					});
 				}
 
 				@Override
