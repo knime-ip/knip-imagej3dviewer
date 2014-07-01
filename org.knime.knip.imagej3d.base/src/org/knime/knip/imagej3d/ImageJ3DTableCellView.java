@@ -448,8 +448,10 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	@Override
 	public final void onClose() {
-		m_universe.cleanup();
-		
+
+		if (m_universe != null)
+			m_universe.cleanup();
+
 		m_dataValue = null;
 		m_ijImagePlus = null;
 		m_c = null;
