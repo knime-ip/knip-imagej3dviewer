@@ -343,6 +343,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 
 					//
+					m_universe.init(new ImageWindow3D("abc", m_universe));
 					m_universePanel = m_universe.getCanvas(0);
 					try {
 						m_rootPanel.add(m_universePanel, BorderLayout.CENTER);
