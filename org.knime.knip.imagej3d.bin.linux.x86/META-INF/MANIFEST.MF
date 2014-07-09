@@ -2,20 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ImageJ 3D Viewer Libraries for Linux x86
 Bundle-SymbolicName: org.knime.knip.imagej3d.bin.linux.x86
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: University of Konstanz
-Fragment-Host: org.knime.knip.imagej3d.base;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Fragment-Host: org.knime.knip.imagej3d.base;bundle-version="1.0.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86))
-Bundle-NativeCode: 
- lib/linux/x86/libgluegen-rt.so;
- lib/linux/x86/libjoal.so;
- lib/linux/x86/libjocl.so;
- lib/linux/x86/libjogl_desktop.so;
- lib/linux/x86/libnativewindow_awt.so;
- lib/linux/x86/libnativewindow_x11.so;
- lib/linux/x86/libnewt.so;
- lib/linux/x86/libopenal.so;
- osname=Linux;
- processor=x86
- 

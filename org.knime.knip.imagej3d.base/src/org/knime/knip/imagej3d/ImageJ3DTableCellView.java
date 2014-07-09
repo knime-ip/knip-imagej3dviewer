@@ -50,10 +50,12 @@
 package org.knime.knip.imagej3d;
 
 import ij.ImagePlus;
-import ij.process.StackConverter;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
 import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
+import ij3d.ImageWindow3D;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -65,6 +67,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+import javax.media.j3d.Canvas3D;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -72,16 +75,16 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
-import net.imglib2.converter.read.ConvertedRandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.ImgView;
+import net.imglib2.converter.Converter;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.real.unary.Convert;
-import net.imglib2.ops.operation.real.unary.Convert.TypeConversionTypes;
+import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
+import net.imglib2.ops.operation.real.unary.Normalize;
+import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.ByteType;
 import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.ValuePair;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
@@ -91,15 +94,15 @@ import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.nodes.view.TableCellView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
+import org.knime.knip.imagej2.core.util.ImageProcessorFactory;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
-import org.knime.knip.imagej2.core.util.UntransformableIJTypeException;
 
 import view4d.Timeline;
 import view4d.TimelineGUI;
 
 /**
  * Helper class for the ImageJ 3D Viewer, which provides the TableCellView.
- *
+ * 
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ImageJ3DTableCellView<T extends RealType<T>> implements
@@ -121,7 +124,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	// rendering Universe
 	private Image3DUniverse m_universe;
 
-	private Component m_universePanel;
+	private Canvas3D m_universePanel;
 
 	// Container for the converted picture,
 	private ImagePlus m_ijImagePlus;
@@ -133,7 +136,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	private DataValue m_dataValue;
 
 	/**
-	 *
+	 * 
 	 * @return the immage the viewer is displaying
 	 */
 
@@ -160,7 +163,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	/**
 	 * flushes the cache and updates the Component.
-	 *
+	 * 
 	 * @param valueToView
 	 *            TheImgPlus that is to be displayed by the viewer.
 	 */
@@ -173,7 +176,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	/**
 	 * updates the Component, called whenever a new picture is selected, or the
 	 * view is reset.
-	 *
+	 * 
 	 * @param valueToView
 	 *            The ImgPlus that is to be displayed by the viewer.
 	 */
@@ -190,7 +193,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 			showError(m_rootPanel, null, false);
 			WaitingIndicatorUtils.setWaiting(m_rootPanel, true);
 
-			SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
+			final SwingWorker<ImgPlus<T>, Integer> worker = new SwingWorker<ImgPlus<T>, Integer>() {
 
 				@Override
 				protected ImgPlus<T> doInBackground() throws Exception {
@@ -200,7 +203,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					m_timeline = m_universe.getTimeline();
 
 					// Menubar
-					ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(
+					final ImageJ3DMenubar<T> ij3dbar = new ImageJ3DMenubar<T>(
 							m_universe, context);
 
 					// add menubar and 3Duniverse to the panel
@@ -211,7 +214,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					m_universe.removeAllContents(); // cleanup universe
 
 					m_dataValue = valueToView;
-					ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
+					final ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
 							.getImgPlus();
 
 					// abort if input image has to few dimensions.
@@ -233,14 +236,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					final T firstElement = in.firstElement();
-
-					// wrap for compatibility
-					ImgPlus<T> imgPlus = (ImgPlus<T>) in;
-
 					// abort if unsuported type
-					if (firstElement instanceof DoubleType) {
-						// TODO Add normalisation
+					if (in.firstElement() instanceof DoubleType) {
 						showError(
 								m_rootPanel,
 								new String[] {
@@ -250,61 +247,17 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						return null;
 					}
 
-					// initalize ImgToIJ converter.
-					ImgToIJ imgToIJ = new ImgToIJ();
-
 					// validate if mapping can be inferred automatically
-					if (!imgToIJ.validateMapping(imgPlus)) {
-						if (!imgToIJ.inferMapping(imgPlus)) {
-							showError(
-									m_rootPanel,
-									new String[] { "Warning: Couldn't match dimensions of input image." },
-									true);
-							return null;
-						}
-					}
-					// convert to ijImagePlus.
-					try {
-						m_ijImagePlus = Operations.compute(imgToIJ, imgPlus);
-					} catch (UntransformableIJTypeException f) {
-						try {
-							// convert to ByteType if imgToIJ fails to
-							// convert,
-							// fixes most untransformable IJType errors.
-							ImgPlus<ByteType> imgPlusConverted = null;
-							ConvertedRandomAccessibleInterval<T, ByteType> converted = new ConvertedRandomAccessibleInterval<T, ByteType>(
-									in, new Convert<T, ByteType>(firstElement,
-											new ByteType(),
-											TypeConversionTypes.SCALE),
-									new ByteType());
-
-							imgPlusConverted = new ImgPlus<ByteType>(
-									new ImgView<ByteType>(converted, in
-											.factory().imgFactory(
-													new ByteType())), in);
-							// second attempt at imgToIJ conversion.
-							m_ijImagePlus = Operations.compute(imgToIJ,
-									imgPlusConverted);
-						} catch (IncompatibleTypeException f1) {
-
-							showError(
-									m_rootPanel,
-									new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
-									true);
-							return null;
-						}
-					}
-
-					// convert into 8-Bit gray values image.
-					try {
-						new StackConverter(m_ijImagePlus).convertToGray8();
-					} catch (java.lang.IllegalArgumentException e) {
+					if (!ImgToIJ.validateMapping(in)) {
 						showError(
 								m_rootPanel,
-								new String[] { "Can't convert ImgPlus to ImageJ ImagePlus." },
+								new String[] { "Warning: The input image contains unknown dimensions. Currently we only support 'X','Y','Channel,'Z' and 'Time'!" },
 								true);
 						return null;
 					}
+
+					// here we create an converted ImagePlus
+					m_ijImagePlus = createImagePlus(in);
 
 					try {
 						// select the rendertype
@@ -327,7 +280,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						default:
 							break;
 						}
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						WaitingIndicatorUtils.setWaiting(m_rootPanel, false);
 						showError(m_rootPanel, new String[] {
 								"error adding picture to universe:",
@@ -336,7 +289,43 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 
 					m_universe.updateTimeline();
-					return imgPlus;
+					return in;
+				}
+
+				/**
+				 * @param firstElement
+				 * @param imgPlus
+				 * @param factor
+				 */
+				private ImagePlus createImagePlus(final ImgPlus<T> in) {
+
+					final double minValue = in.firstElement().getMinValue();
+					final double maxValue = in.firstElement().getMaxValue();
+
+					final ValuePair<T, T> oldMinMax = Operations.compute(
+							new MinMax<T>(), in);
+
+					final double factor = (((maxValue - minValue) / 255))
+							/ Normalize.normalizationFactor(
+									oldMinMax.a.getRealDouble(),
+									oldMinMax.b.getRealDouble(), minValue,
+									maxValue);
+
+					return ImgToIJ.wrap(in, new ImageProcessorFactory() {
+
+						@Override
+						public <V extends Type<V>> ImageProcessor createProcessor(
+								final int width, final int height, final V type) {
+							return new ByteProcessor(width, height);
+						}
+					}, new Converter<T, FloatType>() {
+
+						@Override
+						public void convert(final T input,
+								final FloatType output) {
+							output.setReal(((input.getRealDouble() - minValue) / factor));
+						}
+					});
 				}
 
 				@Override
@@ -345,7 +334,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					ImgPlus<T> imgPlus = null;
 					try {
 						imgPlus = get();
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						e.printStackTrace();
 						return;
 					}
@@ -356,10 +345,12 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 
 					//
+					
+					m_universe.init(new ImageWindow3D("abc", m_universe));
 					m_universePanel = m_universe.getCanvas(0);
 					try {
 						m_rootPanel.add(m_universePanel, BorderLayout.CENTER);
-					} catch (IllegalArgumentException e) {
+					} catch (final IllegalArgumentException e) {
 						// TEMPORARY error handling: openen the 3D view
 						// on different monitors doesn't work so far, at
 						// least with linux
@@ -372,6 +363,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 							throw e;
 						}
 					}
+
 
 					WaitingIndicatorUtils.setWaiting(m_rootPanel, false);
 
@@ -388,6 +380,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} else {
 						m_panel4D.setVisible(false);
 					}
+					
+					m_rootPanel.updateUI();
 				}
 			};
 
@@ -409,7 +403,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 		@Override
 		public void paint(Graphics g) {
-			Rectangle r = getDecorationBounds();
+			final Rectangle r = getDecorationBounds();
 			g = g.create();
 			g.setColor(new Color(211, 211, 211, 255));
 			g.fillRect(r.x, r.y, r.width, r.height);
@@ -428,9 +422,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 			// Error message
 			g.setFont(new Font("TimesRoman", Font.BOLD, 14));
-			int newline = g.getFontMetrics().getHeight() + 5;
+			final int newline = g.getFontMetrics().getHeight() + 5;
 			int y = 200;
-			for (String s : m_errorText) {
+			for (final String s : m_errorText) {
 				g.drawString(s, 10, y += newline);
 			}
 			g.dispose();
@@ -446,7 +440,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		if (w == null) {
 			if (on) {
 				String loggerMessage = "";
-				for (String s : message) {
+				for (final String s : message) {
 					loggerMessage += " " + s;
 				}
 				m_logger.warn(loggerMessage);
@@ -461,7 +455,18 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	@Override
 	public final void onClose() {
+
+		if (m_universe != null)
+			m_universe.cleanup();
+
 		m_dataValue = null;
+		m_ijImagePlus = null;
+		m_c = null;
+		m_panel4D = null;
+		m_universe = null;
+		m_timeline = null;
+		m_timelineGUI = null;
+		m_logger = null;
 	}
 
 	@Override
