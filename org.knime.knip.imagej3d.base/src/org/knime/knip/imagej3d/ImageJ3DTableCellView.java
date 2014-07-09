@@ -55,6 +55,7 @@ import ij.process.ImageProcessor;
 import ij3d.Content;
 import ij3d.ContentConstants;
 import ij3d.Image3DUniverse;
+import ij3d.ImageWindow3D;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -66,6 +67,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+import javax.media.j3d.Canvas3D;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -122,7 +124,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	// rendering Universe
 	private Image3DUniverse m_universe;
 
-	private Component m_universePanel;
+	private Canvas3D m_universePanel;
 
 	// Container for the converted picture,
 	private ImagePlus m_ijImagePlus;
@@ -343,6 +345,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					}
 
 					//
+					
 					m_universe.init(new ImageWindow3D("abc", m_universe));
 					m_universePanel = m_universe.getCanvas(0);
 					try {
@@ -361,6 +364,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 						}
 					}
 
+
 					WaitingIndicatorUtils.setWaiting(m_rootPanel, false);
 
 					// enables the timeline gui if picture has 4 or 5
@@ -376,6 +380,8 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					} else {
 						m_panel4D.setVisible(false);
 					}
+					
+					m_rootPanel.updateUI();
 				}
 			};
 
