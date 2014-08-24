@@ -78,10 +78,11 @@ import javax.swing.SwingUtilities;
 import javax.vecmath.Color3f;
 
 import net.imglib2.type.numeric.RealType;
+
 /**
  * Provides the menubar for the ImageJ3DViewer
- * 
- * @author Gabriel Einsdorf (gabriel.einsdorf@uni-konstanz.d)
+ *
+ * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  *
  * @param <T>
  */
@@ -167,7 +168,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private JMenu createEditMenu() {
-		JMenu edit = new JMenu("Edit");
+		final JMenu edit = new JMenu("Edit");
 
 		edit.add(createDisplayAsSubMenu());
 		slices = new JMenuItem("Adjust slices");
@@ -215,7 +216,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private JMenu createTransformMenu() {
-		JMenu transform = new JMenu("Transformation");
+		final JMenu transform = new JMenu("Transformation");
 
 		lock = new JCheckBoxMenuItem("Lock");
 		lock.addItemListener(this);
@@ -241,7 +242,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private JMenu createViewMenu() {
-		JMenu view = new JMenu("View");
+		final JMenu view = new JMenu("View");
 
 		resetView = new JMenuItem("Reset view");
 		resetView.addActionListener(this);
@@ -325,7 +326,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private JMenu createHelpMenu() {
-		JMenu help = new JMenu("Help");
+		final JMenu help = new JMenu("Help");
 		j3dproperties = new JMenuItem("Java 3D Properties");
 		j3dproperties.addActionListener(this);
 		help.add(j3dproperties);
@@ -339,7 +340,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	@SuppressWarnings("unused")
 	private JMenu createAttributesSubMenu() {
-		JMenu attributes = new JMenu("Attributes");
+		final JMenu attributes = new JMenu("Attributes");
 
 		luts = new JMenuItem("Transfer function");
 		luts.addActionListener(this);
@@ -378,7 +379,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private JMenu createDisplayAsSubMenu() {
-		JMenu display = new JMenu("Display as");
+		final JMenu display = new JMenu("Display as");
 
 		displayAsVolume = new JMenuItem("Volume");
 		displayAsVolume.addActionListener(this);
@@ -463,7 +464,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			});
 		}
 
-		AdjustmentListener listener = new AdjustmentListener() {
+		final AdjustmentListener listener = new AdjustmentListener() {
 			@Override
 			public void adjustmentValueChanged(final AdjustmentEvent e) {
 				colorListener.colorChanged(new Color3f(
@@ -492,7 +493,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	@Override
 	public final void actionPerformed(final ActionEvent e) {
-		Object src = e.getSource();
+		final Object src = e.getSource();
 
 		if (src == color) {
 			executer.changeColor(getSelected());
@@ -570,7 +571,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					executer.resetView();
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 					universe.rotateToPositiveXY();
@@ -583,7 +584,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					executer.resetView();
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 					universe.rotateToPositiveXZ();
@@ -596,7 +597,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					executer.resetView();
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 					universe.rotateToPositiveYZ();
@@ -609,7 +610,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					executer.resetView();
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 					universe.rotateToNegativeXY();
@@ -622,7 +623,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					executer.resetView();
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 					universe.rotateToNegativeXZ();
@@ -635,7 +636,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 					executer.resetView();
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						e.printStackTrace();
 					}
 					universe.rotateToNegativeYZ();
@@ -646,8 +647,8 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	@Override
 	public final void itemStateChanged(final ItemEvent e) {
-		Object src = e.getSource();
-		Content c = getSelected();
+		final Object src = e.getSource();
+		final Content c = getSelected();
 		if (src == coordinateSystem) {
 			executer.showCoordinateSystem(c, coordinateSystem.getState());
 		} else if (src == boundingBox) {
@@ -664,7 +665,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 	}
 
 	private Content getSelected() {
-		Content c = universe.getSelected();
+		final Content c = universe.getSelected();
 		if (c != null) {
 			return c;
 		}
@@ -720,7 +721,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 
 	private void doUpdateMenus() {
 
-		Content c = getSelected();
+		final Content c = getSelected();
 
 		displayAsVolume.setEnabled(c != null);
 		displayAsSurface.setEnabled(c != null);
@@ -746,7 +747,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 			return;
 		}
 
-		int t = c.getType();
+		final int t = c.getType();
 
 		slices.setEnabled(t == Content.ORTHO || t == Content.MULTIORTHO);
 
@@ -754,7 +755,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		lock.setState(c.isLocked());
 		show.setState(c.isVisible());
 
-		ImagePlus i = c.getImage();
+		final ImagePlus i = c.getImage();
 		displayAsVolume.setEnabled(t != Content.VOLUME && i != null);
 		displayAsOrtho.setEnabled(t != Content.ORTHO && i != null);
 		displayAsSurface.setEnabled(t != Content.SURFACE && i != null);
