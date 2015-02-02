@@ -17,7 +17,8 @@ Require-Bundle: org.knime.workbench.repository;bundle-version="[2.10.0,3.0.0)",
  imagej-common;bundle-version="0.12.0",
  ij;bundle-version="1.49.0",
  imglib2-ij;bundle-version="2.0.0",
- knip-tmp-imglib2-ops;bundle-version="0.1.4"
+ knip-tmp-imglib2-ops;bundle-version="0.1.4",
+ scijava-common;bundle-version="2.37.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/ij3d_knip_build.jar,
