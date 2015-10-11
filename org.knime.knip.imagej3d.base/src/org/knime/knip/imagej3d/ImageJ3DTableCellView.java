@@ -49,14 +49,6 @@
 
 package org.knime.knip.imagej3d;
 
-import ij.ImagePlus;
-import ij.process.ByteProcessor;
-import ij.process.ImageProcessor;
-import ij3d.Content;
-import ij3d.ContentConstants;
-import ij3d.Image3DUniverse;
-import ij3d.ImageWindow3D;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -75,17 +67,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 import javax.swing.ToolTipManager;
 
-import net.imagej.ImgPlus;
-import net.imglib2.converter.Converter;
-import net.imglib2.ops.operation.Operations;
-import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
-import net.imglib2.ops.operation.real.unary.Normalize;
-import net.imglib2.type.Type;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.real.DoubleType;
-import net.imglib2.type.numeric.real.FloatType;
-import net.imglib2.util.ValuePair;
-
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.config.ConfigRO;
@@ -97,6 +78,23 @@ import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 import org.knime.knip.imagej2.core.util.ImageProcessorFactory;
 import org.knime.knip.imagej2.core.util.ImgToIJ;
 
+import ij.ImagePlus;
+import ij.process.ByteProcessor;
+import ij.process.ImageProcessor;
+import ij3d.Content;
+import ij3d.ContentConstants;
+import ij3d.Image3DUniverse;
+import ij3d.ImageWindow3D;
+import net.imagej.ImgPlus;
+import net.imglib2.converter.Converter;
+import net.imglib2.ops.operation.Operations;
+import net.imglib2.ops.operation.iterableinterval.unary.MinMax;
+import net.imglib2.ops.operation.real.unary.Normalize;
+import net.imglib2.type.Type;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.DoubleType;
+import net.imglib2.type.numeric.real.FloatType;
+import net.imglib2.util.ValuePair;
 import view4d.Timeline;
 import view4d.TimelineGUI;
 

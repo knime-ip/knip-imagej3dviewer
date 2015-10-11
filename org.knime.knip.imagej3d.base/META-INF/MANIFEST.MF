@@ -2,24 +2,25 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME ImageJ 3D Viewer Integration
 Bundle-SymbolicName: org.knime.knip.imagej3d.base;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.1.0.qualifier
 Eclipse-RegisterBuddy: org.knime.knip.imagej2.core
 Bundle-Vendor: University of Konstanz / FIJI (http://3dviewer.neurofly.de/)
-Require-Bundle: org.knime.workbench.repository;bundle-version="[2.10.0,3.0.0)",
+Require-Bundle: org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
  org.apache.log4j;bundle-version="1.2.15",
  org.eclipse.core.runtime,
  org.eclipse.ui,
  org.knime.knip.base;bundle-version="[1.2.0,2.0.0)",
  org.knime.knip.core;bundle-version="[1.2.0,2.0.0)",
- org.knime.knip.imagej2.core;bundle-version="[0.9.0,0.10.0)",
- org.knime.core;bundle-version="[2.10.0,3.0.0)",
+ org.knime.knip.imagej2.core;bundle-version="[0.10.0,0.11.0)",
+ org.knime.core;bundle-version="[3.0.0,4.0.0)",
  imglib2;bundle-version="2.2.0",
  imagej-common;bundle-version="0.12.0",
  ij;bundle-version="1.49.0",
  imglib2-ij;bundle-version="2.0.0",
  knip-tmp-imglib2-ops;bundle-version="0.1.4",
- scijava-common;bundle-version="2.37.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+ scijava-common;bundle-version="2.47.0",
+ scijava-cache;bundle-version="0.1.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  lib/ij3d_knip_build.jar,
  lib/j3dcore.jar,
