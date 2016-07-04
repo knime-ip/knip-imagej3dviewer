@@ -2,9 +2,9 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         point="org.knime.knip.base.TableCellView">
-      <TableCellView
-            TableCellViewFactory="org.knime.knip.imagej3d.ImageJ3DViewer">
-      </TableCellView>
+         point="org.knime.knip.cellviewer.cellviews">
+      <CellView
+            CellViewProviderFactory="org.knime.knip.imagej3d.ImageJ3DViewer">
+      </CellView>
    </extension>
 </plugin>

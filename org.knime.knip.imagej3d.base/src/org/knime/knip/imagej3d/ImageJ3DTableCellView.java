@@ -210,7 +210,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					m_universe.removeAllContents(); // cleanup universe
 
 					m_dataValue = valueToView.get(0);
-					final ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
+					final ImgPlus<T> in = ((ImgPlusValue<T>) valueToView.get(0))
 							.getImgPlus();
 
 					// abort if input image has to few dimensions.
