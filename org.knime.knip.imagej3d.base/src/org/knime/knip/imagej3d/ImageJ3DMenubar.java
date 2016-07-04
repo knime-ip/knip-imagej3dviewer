@@ -67,6 +67,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 
 import javax.media.j3d.Background;
 import javax.media.j3d.View;
@@ -510,7 +511,7 @@ public class ImageJ3DMenubar<T extends RealType<T>> extends JMenuBar implements
 		} else if (src == resetView) {
 			executer.resetView();
 		} else if (src == reloadImage) {
-			tableCellview.fullReload(tableCellview.getDataValue());
+			tableCellview.fullReload(Arrays.asList(tableCellview.getDataValue()));
 		} else if (src == centerOrigin) {
 			executer.centerOrigin();
 		} else if (src == centerUniverse) {

@@ -19,7 +19,8 @@ Require-Bundle: org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
  imglib2-ij;bundle-version="2.0.0",
  knip-tmp-imglib2-ops;bundle-version="0.1.4",
  scijava-common;bundle-version="2.47.0",
- scijava-cache;bundle-version="0.1.0"
+ scijava-cache;bundle-version="0.1.0",
+ org.knime.knip.cellviewer;bundle-version="1.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .,
  lib/ij3d_knip_build.jar,

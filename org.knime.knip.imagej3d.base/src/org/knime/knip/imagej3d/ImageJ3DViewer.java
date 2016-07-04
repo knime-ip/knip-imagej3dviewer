@@ -48,12 +48,13 @@
  */
 package org.knime.knip.imagej3d;
 
-import net.imglib2.type.numeric.RealType;
+import java.util.List;
 
 import org.knime.core.data.DataValue;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.nodes.view.TableCellView;
-import org.knime.knip.base.nodes.view.TableCellViewFactory;
+import org.knime.knip.cellviewer.interfaces.CellViewFactory;
+
+import net.imglib2.type.numeric.RealType;
 
 /**
  * Displays a 3D/4D/5D Image.
@@ -62,17 +63,30 @@ import org.knime.knip.base.nodes.view.TableCellViewFactory;
  * 
  * @param <T>
  */
-public class ImageJ3DViewer<T extends RealType<T>> implements
-		TableCellViewFactory {
+public class ImageJ3DViewer<T extends RealType<T>> implements CellViewFactory {
 
 	@Override
-	public TableCellView[] createTableCellViews() {
-		return new TableCellView[] { new ImageJ3DTableCellView<T>() };
+	public ImageJ3DTableCellView<T> createCellView() {
+		return new ImageJ3DTableCellView<T>();
 	}
 
 	@Override
-	public final Class<? extends DataValue> getDataValueClass() {
-		return ImgPlusValue.class;
+	public final String getCellViewName() {
+		return "ImageJ 3D Viewer";
+	}
+
+	@Override
+	public final String getCellViewDescription() {
+		return "ImageJ 3D Viewer (see http://3dviewer.neurofly.de/)";
+	}
+
+	@Override
+	public boolean isCompatible(List<Class<? extends DataValue>> values) {
+		if (values.size() == 1 && ImgPlusValue.class.isAssignableFrom(values.get(0))) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }

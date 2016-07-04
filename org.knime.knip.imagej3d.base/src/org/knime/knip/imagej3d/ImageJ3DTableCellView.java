@@ -51,13 +51,13 @@ package org.knime.knip.imagej3d;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.util.List;
 
 import javax.media.j3d.Canvas3D;
 import javax.swing.JComponent;
@@ -69,10 +69,8 @@ import javax.swing.ToolTipManager;
 
 import org.knime.core.data.DataValue;
 import org.knime.core.node.NodeLogger;
-import org.knime.core.node.config.ConfigRO;
-import org.knime.core.node.config.ConfigWO;
 import org.knime.knip.base.data.img.ImgPlusValue;
-import org.knime.knip.base.nodes.view.TableCellView;
+import org.knime.knip.cellviewer.interfaces.CellView;
 import org.knime.knip.core.util.waitingindicator.WaitingIndicatorUtils;
 import org.knime.knip.core.util.waitingindicator.libs.WaitIndicator;
 import org.knime.knip.imagej2.core.util.ImageProcessorFactory;
@@ -104,7 +102,7 @@ import view4d.TimelineGUI;
  * @author <a href="mailto:gabriel.einsdorf@uni.kn">Gabriel Einsdorf</a>
  */
 public class ImageJ3DTableCellView<T extends RealType<T>> implements
-		TableCellView {
+		CellView {
 
 	private NodeLogger m_logger = NodeLogger
 			.getLogger(ImageJ3DTableCellView.class);
@@ -147,7 +145,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 
 	// Creates a viewer which will be updated on "updateComponent"
 	@Override
-	public final Component getViewComponent() {
+	public final JPanel getViewComponent() {
 		// Fixes Canvas covering menu
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
@@ -165,7 +163,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	 * @param valueToView
 	 *            TheImgPlus that is to be displayed by the viewer.
 	 */
-	protected final void fullReload(final DataValue valueToView) {
+	protected final void fullReload(final List<DataValue> valueToView) {
 		m_dataValue = null;
 		m_rootPanel.remove(m_universePanel);
 		updateComponent(valueToView);
@@ -180,9 +178,9 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public final void updateComponent(final DataValue valueToView) {
+	public final void updateComponent(final List<DataValue> valueToView) {
 
-		if (m_dataValue == null || !(m_dataValue.equals(valueToView))) {
+		if (m_dataValue == null || !(m_dataValue.equals(valueToView.get(0)))) {
 
 			// reference to the current object so it can be reached in the
 			// worker.
@@ -211,7 +209,7 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 					m_universe.resetView();
 					m_universe.removeAllContents(); // cleanup universe
 
-					m_dataValue = valueToView;
+					m_dataValue = valueToView.get(0);
 					final ImgPlus<T> in = ((ImgPlusValue<T>) valueToView)
 							.getImgPlus();
 
@@ -465,24 +463,6 @@ public class ImageJ3DTableCellView<T extends RealType<T>> implements
 		m_timeline = null;
 		m_timelineGUI = null;
 		m_logger = null;
-	}
-
-	@Override
-	public final String getName() {
-		return "ImageJ 3D Viewer";
-	}
-
-	@Override
-	public final String getDescription() {
-		return "ImageJ 3D Viewer (see http://3dviewer.neurofly.de/)";
-	}
-
-	@Override
-	public void loadConfigurationFrom(final ConfigRO config) {
-	}
-
-	@Override
-	public void saveConfigurationTo(final ConfigWO config) {
 	}
 
 	@Override
