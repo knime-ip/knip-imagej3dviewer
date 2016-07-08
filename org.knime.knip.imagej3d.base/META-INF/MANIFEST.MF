@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-Name: KNIME ImageJ 3D Viewer Integration
 Bundle-SymbolicName: org.knime.knip.imagej3d.base;singleton:=true
 Bundle-ManifestVersion: 2
-Bundle-Version: 1.2.0.qualifier
+Bundle-Version: 1.2.1.qualifier
 Eclipse-RegisterBuddy: org.knime.knip.imagej2.core
 Bundle-Vendor: University of Konstanz / FIJI (http://3dviewer.neurofly.de/)
 Require-Bundle: org.knime.workbench.repository;bundle-version="[3.0.0,4.0.0)",
