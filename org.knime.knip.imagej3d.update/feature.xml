@@ -2,7 +2,7 @@
 <feature
       id="org.knime.knip.imagej3d.update"
       label="KNIME Image Processing - ImageJ 3D Viewer Integration"
-      version="1.2.1.qualifier">
+      version="1.2.2.qualifier">
 
    <includes
          id="org.knime.knip.imagej3d.feature"
