@@ -21,7 +21,7 @@ Require-Bundle: org.knime.workbench.repository;bundle-version="[3.0.0,6.0.0)",
  scijava-common;bundle-version="2.47.0",
  scijava-cache;bundle-version="0.1.0",
  org.knime.knip.cellviewer;bundle-version="1.5.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ClassPath: .,
  lib/ij3d_knip_build.jar,
  lib/j3dcore.jar,
