@@ -12,11 +12,14 @@
 	<properties>
 		<revision>1.0.0</revision>
 		<changelist>-SNAPSHOT</changelist>
-		<knime.version>5.1</knime.version>
-		<tycho.version>2.7.5</tycho.version>
+		<knime.version>nightly</knime.version>
+		<tycho.version>4.0.13</tycho.version>
 		<tycho.extras.version>${tycho.version}</tycho.extras.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.release>21</maven.compiler.release>		
 	</properties>
 
 	<!-- List the modules of your project here -->
@@ -52,6 +55,16 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.13.0</version>
+					<configuration>
+						<source>21</source>
+						<target>21</target>
+						<release>21</release>
+					</configuration>
+				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-maven-plugin</artifactId>
@@ -90,7 +103,7 @@
 					</configuration>
 				</plugin>
 				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
+					<groupId>org.eclipse.tycho</groupId>
 					<artifactId>tycho-buildtimestamp-jgit</artifactId>
 					<version>${tycho.extras.version}</version>
 				</plugin>
@@ -103,6 +116,16 @@
 					<groupId>org.eclipse.tycho.extras</groupId>
 					<artifactId>tycho-p2-extras-plugin</artifactId>
 					<version>${tycho.extras.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho.extras</groupId>
+					<artifactId>tycho-source-feature-plugin</artifactId>
+					<version>${tycho.extras.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-source-plugin</artifactId>
+					<version>${tycho.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.eclipse.tycho</groupId>
@@ -128,6 +151,32 @@
 
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+
+				<!-- This plugin configuration block is only needed if the repository contains plug-ins that don't have any sources. If it is omitted
+		 		Tycho will complain. -->
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>source-feature</id>
+						<phase>package</phase>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<excludes>
+						<!-- List all plug-in that do NOT contain sources here. -->
+						<!-- <plugin id="org.knime.community.template.no-source-files" /> -->
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<extensions>true</extensions>
@@ -137,7 +186,7 @@
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<dependencies>
 					<dependency>
-						<groupId>org.eclipse.tycho.extras</groupId>
+						<groupId>org.eclipse.tycho</groupId>
 						<artifactId>tycho-buildtimestamp-jgit</artifactId>
 						<version>${tycho.extras.version}</version>
 					</dependency>
@@ -163,6 +212,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<configuration>
+					<executionEnvironment>JavaSE-21</executionEnvironment>
 					<environments>
 						<!-- These can be removed once we shut down the Buckminster build -->
 						<environment>
@@ -184,6 +234,25 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>feature-source</id>
+						<phase>package</phase>
+						<goals>
+							<goal>feature-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<!-- The following is required if source bundles are to be included -->
 			<plugin>
